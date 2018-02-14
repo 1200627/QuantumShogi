@@ -3,8 +3,8 @@ package quantumshogi.pieces
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import quantumshogi.chessboard.Chessboard
+import quantumshogi.chessboard.Place
 import quantumshogi.player.Player
-import kotlin.math.abs
 
 class QuantumPiece(
         val player: Player = Player.P1,
@@ -24,69 +24,29 @@ class QuantumPiece(
             Chessboard.clearStyle()
             val possibleDestination = mutableListOf<Pair<Int, Int>>()
             if (possibles.contains(PieceType.FUHYO)) {
-                val diff = y + player.direction
-                if (diff in 0..8) {
-                    possibleDestination.add(Pair(x, diff))
-                }
-            }
-            if (possibles.contains(PieceType.HISHA)) {
-                val list1 = (0 until 9).filter { it != x }.map {
-                    Pair(it, y)
-                }
-                val list2 = (0 until 9).filter { it != y }.map {
-                    Pair(x, it)
-                }
-                possibleDestination.addAll(list1 + list2)
-            }
-            if (possibles.contains(PieceType.KAKUGYO)) {
-                val list = (0 until 9).filter { it != y }.flatMap {
-                    val diff = abs(this.y - it)
-                    listOf(Pair(x - diff, it), Pair(x + diff, it))
-                }
-                possibleDestination.addAll(list)
-            }
-            if (possibles.contains(PieceType.KYOSHA)) {
-                val list = (1..(8 - y * player.direction) % 9).map {
-                    Pair(x, y + it * player.direction)
-                }
-                possibleDestination.addAll(list)
-            }
-            if (possibles.contains(PieceType.KEIMA)) {
-                val diffY = y + player.direction * 2
-                possibleDestination.add(Pair(x - 1, diffY))
-                possibleDestination.add(Pair(x + 1, diffY))
-            }
-            if (possibles.contains(PieceType.GIN)) {
-                val diffY1 = y + player.direction
-                val diffY2 = y - player.direction
-                possibleDestination.add(Pair(x - 1, diffY1))
-                possibleDestination.add(Pair(x, diffY1))
-                possibleDestination.add(Pair(x + 1, diffY1))
-                possibleDestination.add(Pair(x - 1, diffY2))
-                possibleDestination.add(Pair(x + 1, diffY2))
-            }
-            if (possibles.contains(PieceType.KIN)) {
-                val diffY1 = y + player.direction
-                val diffY2 = y - player.direction
-                possibleDestination.add(Pair(x - 1, diffY1))
-                possibleDestination.add(Pair(x, diffY1))
-                possibleDestination.add(Pair(x + 1, diffY1))
-                possibleDestination.add(Pair(x - 1, y))
-                possibleDestination.add(Pair(x + 1, y))
-                possibleDestination.add(Pair(x, diffY2))
-            }
-            if (possibles.contains(PieceType.OU)) {
-                val diffY1 = y + player.direction
-                val diffY2 = y - player.direction
-                possibleDestination.add(Pair(x - 1, diffY1))
-                possibleDestination.add(Pair(x, diffY1))
-                possibleDestination.add(Pair(x + 1, diffY1))
-                possibleDestination.add(Pair(x - 1, y))
-                possibleDestination.add(Pair(x + 1, y))
-                possibleDestination.add(Pair(x - 1, diffY2))
-                possibleDestination.add(Pair(x, diffY2))
-                possibleDestination.add(Pair(x + 1, diffY2))
-            }
+                possibleDestination.addAll(PieceType.FUHYO.movements(Place(y, x), player).map { it.file to it.rank })
+             }
+            //if (possibles.contains(PieceType.HISHA)) {
+            //    possibleDestination.addAll(PieceType.HISHA.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            ///if (possibles.contains(PieceType.KAKUGYO)) {
+            //   possibleDestination.addAll(PieceType.KAKUGYO.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            //if (possibles.contains(PieceType.KYOSHA)) {
+            //    possibleDestination.addAll(PieceType.KYOSHA.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            //if (possibles.contains(PieceType.KEIMA)) {
+            //    possibleDestination.addAll(PieceType.KEIMA.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            //if (possibles.contains(PieceType.GIN)) {
+            //    possibleDestination.addAll(PieceType.GIN.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            //if (possibles.contains(PieceType.KIN)) {
+            //    possibleDestination.addAll(PieceType.KIN.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
+            //if (possibles.contains(PieceType.OU)) {
+            //    possibleDestination.addAll(PieceType.OU.movements(Place(y, x), player).map { it.file to it.rank })
+            //}
 
             val checked = possibleDestination.distinct().filter {
                 it.first in 0..8 && it.second in 0..8
