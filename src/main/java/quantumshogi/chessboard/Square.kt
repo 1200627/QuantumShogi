@@ -5,7 +5,6 @@ import javafx.geometry.Pos
 import javafx.scene.layout.StackPane
 import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
-import quantumshogi.player.Player
 
 class Square(
         piece: Piece? = null,
@@ -36,11 +35,7 @@ class Square(
             this.piece = selectedPiece
 
             Chessboard.clearStyle()
-            Chessboard.playing = if (Chessboard.playing == Player.P1) {
-                Player.P2
-            } else {
-                Player.P1
-            }
+            Chessboard.playing = Chessboard.playing.nextPlayer
             Chessboard.status = Chessboard.Status.IDLE
         }
     }

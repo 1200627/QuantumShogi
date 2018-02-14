@@ -4,11 +4,12 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
+import quantumshogi.player.Player
 
 object Chessboard {
     val rows: ObservableList<Square> = FXCollections.observableArrayList()
 
-    var playing = Piece.Player.P1
+    var playing = Player.P1
     var status = Status.IDLE
     var selected: Pair<Int, Int> = Pair(0, 0)
     var movable: List<Pair<Int, Int>> = emptyList()
@@ -31,20 +32,20 @@ object Chessboard {
         (0 until 9).forEach { y ->
             (0 until 9).forEach { x ->
                 val sq = when (y) {
-                    0, 2 -> Square(QuantumPiece(Piece.Player.P1, x, y), x, y)
+                    0, 2 -> Square(QuantumPiece(Player.P1, x, y), x, y)
                     1 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Piece.Player.P1, x, y), x, y)
+                                Square(QuantumPiece(Player.P1, x, y), x, y)
                             }
                             else -> Square(null, x, y)
                         }
                     }
-                    6, 8 -> Square(QuantumPiece(Piece.Player.P2, x, y), x, y)
+                    6, 8 -> Square(QuantumPiece(Player.P2, x, y), x, y)
                     7 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Piece.Player.P2, x, y), x, y)
+                                Square(QuantumPiece(Player.P2, x, y), x, y)
                             }
                             else -> Square(null, x, y)
                         }
