@@ -1,4 +1,3 @@
 package quantumshogi.pieces
 
-interface Piece {
-}
+interface Piece

@@ -9,7 +9,8 @@ import java.net.URL
 import java.util.*
 
 class Controller : Initializable {
-    @FXML private lateinit var chessboardPane: GridPane
+    @FXML
+    private lateinit var chessboardPane: GridPane
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         (0 until 9).forEach { y ->

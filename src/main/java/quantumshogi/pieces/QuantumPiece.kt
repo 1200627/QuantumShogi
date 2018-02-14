@@ -91,10 +91,10 @@ class QuantumPiece(
             val checked = possibleDestination.distinct().filter {
                 it.first in 0..8 && it.second in 0..8
             }.filter {
-                val sq = Chessboard.get(it.first, it.second)
-                val qp = (sq.piece as? QuantumPiece)
-                qp == null || qp.player != Chessboard.playing
-            }
+                        val sq = Chessboard.get(it.first, it.second)
+                        val qp = (sq.piece as? QuantumPiece)
+                        qp == null || qp.player != Chessboard.playing
+                    }
 
             checked.forEach {
                 val square = Chessboard.get(it.first, it.second)

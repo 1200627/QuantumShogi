@@ -2,7 +2,6 @@ package quantumshogi.chessboard
 
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.player.Player
 
