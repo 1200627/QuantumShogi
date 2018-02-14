@@ -13,6 +13,8 @@ interface Piece {
         KEIMA("桂馬"),
         GIN("銀将"),
         KIN("金将"),
-        OU("王将")
+        OU("王将");
+
+        override fun toString() = string
     }
 }
