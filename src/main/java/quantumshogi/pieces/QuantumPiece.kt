@@ -3,14 +3,15 @@ package quantumshogi.pieces
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import quantumshogi.chessboard.Chessboard
+import quantumshogi.player.Player
 import kotlin.math.abs
 
 class QuantumPiece(
-        val player: Piece.Player = Piece.Player.P1,
+        val player: Player = Player.P1,
         var x: Int,
         var y: Int
 ) : Rectangle(30.0, 40.0, Color.valueOf(PIECE_COLOR)), Piece {
-    private val possibles: List<Piece.Type> = Piece.Type.values().toMutableList()
+    private val possibles: List<PieceType> = PieceType.values().toMutableList()
 
     init {
         stroke = Color.BLACK
@@ -22,13 +23,13 @@ class QuantumPiece(
 
             Chessboard.clearStyle()
             val possibleDestination = mutableListOf<Pair<Int, Int>>()
-            if (possibles.contains(Piece.Type.FUHYO)) {
+            if (possibles.contains(PieceType.FUHYO)) {
                 val diff = y + player.direction
                 if (diff in 0..8) {
                     possibleDestination.add(Pair(x, diff))
                 }
             }
-            if (possibles.contains(Piece.Type.HISHA)) {
+            if (possibles.contains(PieceType.HISHA)) {
                 val list1 = (0 until 9).filter { it != x }.map {
                     Pair(it, y)
                 }
@@ -37,25 +38,25 @@ class QuantumPiece(
                 }
                 possibleDestination.addAll(list1 + list2)
             }
-            if (possibles.contains(Piece.Type.KAKUGYO)) {
+            if (possibles.contains(PieceType.KAKUGYO)) {
                 val list = (0 until 9).filter { it != y }.flatMap {
                     val diff = abs(this.y - it)
                     listOf(Pair(x - diff, it), Pair(x + diff, it))
                 }
                 possibleDestination.addAll(list)
             }
-            if (possibles.contains(Piece.Type.KYOSHA)) {
+            if (possibles.contains(PieceType.KYOSHA)) {
                 val list = (1..(8 - y * player.direction) % 9).map {
                     Pair(x, y + it * player.direction)
                 }
                 possibleDestination.addAll(list)
             }
-            if (possibles.contains(Piece.Type.KEIMA)) {
+            if (possibles.contains(PieceType.KEIMA)) {
                 val diffY = y + player.direction * 2
                 possibleDestination.add(Pair(x - 1, diffY))
                 possibleDestination.add(Pair(x + 1, diffY))
             }
-            if (possibles.contains(Piece.Type.GIN)) {
+            if (possibles.contains(PieceType.GIN)) {
                 val diffY1 = y + player.direction
                 val diffY2 = y - player.direction
                 possibleDestination.add(Pair(x - 1, diffY1))
@@ -64,7 +65,7 @@ class QuantumPiece(
                 possibleDestination.add(Pair(x - 1, diffY2))
                 possibleDestination.add(Pair(x + 1, diffY2))
             }
-            if (possibles.contains(Piece.Type.KIN)) {
+            if (possibles.contains(PieceType.KIN)) {
                 val diffY1 = y + player.direction
                 val diffY2 = y - player.direction
                 possibleDestination.add(Pair(x - 1, diffY1))
@@ -74,7 +75,7 @@ class QuantumPiece(
                 possibleDestination.add(Pair(x + 1, y))
                 possibleDestination.add(Pair(x, diffY2))
             }
-            if (possibles.contains(Piece.Type.OU)) {
+            if (possibles.contains(PieceType.OU)) {
                 val diffY1 = y + player.direction
                 val diffY2 = y - player.direction
                 possibleDestination.add(Pair(x - 1, diffY1))
