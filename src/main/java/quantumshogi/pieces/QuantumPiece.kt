@@ -7,53 +7,36 @@ import quantumshogi.chessboard.Place
 import quantumshogi.player.Player
 
 class QuantumPiece(
-        val player: Player = Player.P1,
-        var x: Int,
-        var y: Int
+        override val player: Player,
+        private var x: Int,
+        private var y: Int
 ) : Rectangle(30.0, 40.0, Color.valueOf(PIECE_COLOR)), Piece {
+    override val place by lazy { Place(y, x) }
+    override val type by lazy { possibles[0] }
+
     private val possibles: List<PieceType> = PieceType.values().toMutableList()
 
     init {
         stroke = Color.BLACK
         strokeWidth = 1.0
         setOnMouseClicked {
-            if (player != Chessboard.playing) {
+            if (!Chessboard.turnIs(player)) {
                 return@setOnMouseClicked
             }
 
             Chessboard.clearStyle()
             val possibleDestination = mutableListOf<Pair<Int, Int>>()
-            if (possibles.contains(PieceType.FUHYO)) {
-                possibleDestination.addAll(PieceType.FUHYO.movements(Place(y, x), player).map { it.file to it.rank })
-             }
-            //if (possibles.contains(PieceType.HISHA)) {
-            //    possibleDestination.addAll(PieceType.HISHA.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            ///if (possibles.contains(PieceType.KAKUGYO)) {
-            //   possibleDestination.addAll(PieceType.KAKUGYO.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            //if (possibles.contains(PieceType.KYOSHA)) {
-            //    possibleDestination.addAll(PieceType.KYOSHA.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            //if (possibles.contains(PieceType.KEIMA)) {
-            //    possibleDestination.addAll(PieceType.KEIMA.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            //if (possibles.contains(PieceType.GIN)) {
-            //    possibleDestination.addAll(PieceType.GIN.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            //if (possibles.contains(PieceType.KIN)) {
-            //    possibleDestination.addAll(PieceType.KIN.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
-            //if (possibles.contains(PieceType.OU)) {
-            //    possibleDestination.addAll(PieceType.OU.movements(Place(y, x), player).map { it.file to it.rank })
-            //}
+
+            possibles.forEach {
+                possibleDestination.addAll(it.movements(Place(y, x), player, Chessboard.toModel()).map { it.file to it.rank })
+            }
 
             val checked = possibleDestination.distinct().filter {
                 it.first in 0..8 && it.second in 0..8
             }.filter {
                         val sq = Chessboard.get(it.first, it.second)
                         val qp = (sq.piece as? QuantumPiece)
-                        qp == null || qp.player != Chessboard.playing
+                        qp == null || !Chessboard.turnIs(qp.player)
                     }
 
             checked.forEach {
@@ -61,10 +44,14 @@ class QuantumPiece(
                 square.style = "-fx-background-color:#ff0000a0"
             }
 
-            Chessboard.status = Chessboard.Status.SELECTED
+            Chessboard.selectPiece()
             Chessboard.movable = checked
-            Chessboard.selected = Pair(x, y)
+            Chessboard.selected = x to y
         }
+    }
+
+    override fun toString(): String {
+        return possibles[0].toString()
     }
 
     companion object {

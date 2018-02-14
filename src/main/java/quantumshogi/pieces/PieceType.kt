@@ -1,78 +1,12 @@
 package quantumshogi.pieces
 
+import quantumshogi.chessboard.BoardModel
 import quantumshogi.chessboard.Place
 import quantumshogi.player.Player
-import kotlin.math.abs
 
-enum internal class PieceType(private val string: String) {
-    FUHYO("歩兵") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            if (place.rank + player.direction in 0..8) {
-                return setOf(Place(place.rank + player.direction, place.file))
-            }
-            return setOf()
-        }
-    },
-    HISHA("飛車") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            val list1 = (0 until 9).filter { it != place.rank }.map {
-                Place(it, place.file)
-            }
-            val list2 = (0 until 9).filter { it != place.file }.map {
-                Place(place.rank, it)
-            }
-            return (list1 + list2).toSet()
-        }
-    },
-    KAKUGYO("角行") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            TODO("Bug fix Needed")
-            return (0 until 9).filter { it != place.file }.flatMap {
-                val diff = abs(place.rank - it)
-                listOf(Place(it, place.file - diff), Place(it, place.file + diff))
-            }.toSet()
-        }
-    },
-    KYOSHA("香車") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            return (1..9).map { place.rank + it * player.direction }.takeWhile { it in 0..9 }.map {
-                Place(it, place.file)
-            }.toSet()
-        }
-    },
-    KEIMA("桂馬") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            return setOf(
-                    Place(place.rank + 2 * player.direction, place.file + 1),
-                    Place(place.rank + 2 * player.direction, place.file - 1)
-            )
-        }
-    },
-    GIN("銀将") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            return setOf(
-                    Place(place.rank + 1 * player.direction, place.file),
-                    Place(place.rank + 1 * player.direction, place.file - 1),
-                    Place(place.rank + 1 * player.direction, place.file + 1),
-                    Place(place.rank - 1 * player.direction, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file + 1)
-            )
-        }
-    },
-    KIN("金将") {
-        override fun movements(place: Place, player: Player): Set<Place> {
-            return setOf(
-                    Place(place.rank + 1 * player.direction, place.file),
-                    Place(place.rank + 1 * player.direction, place.file - 1),
-                    Place(place.rank + 1 * player.direction, place.file + 1),
-                    Place(place.rank, place.file + 1),
-                    Place(place.rank, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file)
-            )
-        }
-    },
-    OU("王将") {
-        override fun movements(place: Place, player: Player): Set<Place> {
+enum class PieceType(private val string: String) {
+    KING("王") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file),
                     Place(place.rank + 1 * player.direction, place.file - 1),
@@ -82,11 +16,138 @@ enum internal class PieceType(private val string: String) {
                     Place(place.rank - 1 * player.direction, place.file),
                     Place(place.rank - 1 * player.direction, place.file - 1),
                     Place(place.rank - 1 * player.direction, place.file + 1)
-            )
+            ).filter { board[it] == null || board[it]!!.player != player }.toSet()
+        }
+    },
+    ROOK("飛") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            val set = mutableSetOf<Place>()
+
+            listOf(player.forward, player.left, player.backward, player.right).forEach {
+                var now = place
+                while (true) {
+                    now += it
+                    if (!now.isOnBoard) {
+                        break
+                    }
+                    val movedRectangle = board[now]
+                    if (movedRectangle == null) {
+                        set.add(now)
+                        continue
+                    }
+                    if (movedRectangle.player != player) {
+                        set.add(now)
+                        break
+                    }
+                    break
+                }
+            }
+
+            return set
+        }
+    },
+    BISHOP("角") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            val set = mutableSetOf<Place>()
+
+            listOf(player.leftForward, player.leftBackward, player.rightForward, player.rightBackward).forEach {
+                var now = place
+                while (true) {
+                    now += it
+                    if (!now.isOnBoard) {
+                        break
+                    }
+                    val movedRectangle = board[now]
+                    if (movedRectangle == null) {
+                        set.add(now)
+                        continue
+                    }
+                    if (movedRectangle.player != player) {
+                        set.add(now)
+                        break
+                    }
+                    break
+                }
+            }
+
+            return set
+        }
+    },
+    KIN("金") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            return setOf(
+                    Place(place.rank + 1 * player.direction, place.file),
+                    Place(place.rank + 1 * player.direction, place.file - 1),
+                    Place(place.rank + 1 * player.direction, place.file + 1),
+                    Place(place.rank, place.file + 1),
+                    Place(place.rank, place.file - 1),
+                    Place(place.rank - 1 * player.direction, place.file)
+            ).filter { board[it] == null || board[it]!!.player != player }.toSet()
+        }
+    },
+    GIN("銀") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            return setOf(
+                    Place(place.rank + 1 * player.direction, place.file),
+                    Place(place.rank + 1 * player.direction, place.file - 1),
+                    Place(place.rank + 1 * player.direction, place.file + 1),
+                    Place(place.rank - 1 * player.direction, place.file - 1),
+                    Place(place.rank - 1 * player.direction, place.file + 1)
+            ).filter { board[it] == null || board[it]!!.player != player }.toSet()
+        }
+    },
+    KEIMA("桂") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            return setOf(
+                    Place(place.rank + 2 * player.direction, place.file + 1),
+                    Place(place.rank + 2 * player.direction, place.file - 1)
+            ).filter { board[it] == null || board[it]!!.player != player }.toSet()
+        }
+    },
+    KYOSHA("香") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            val set = mutableSetOf<Place>()
+
+            var now = place
+            while (true) {
+                now += player.forward
+                if (!now.isOnBoard) {
+                    break
+                }
+                val movedRectangle = board[now]
+                if (movedRectangle == null) {
+                    set.add(now)
+                    continue
+                }
+                if (movedRectangle.player != player) {
+                    set.add(now)
+                    break
+                }
+                break
+            }
+
+            return set
+        }
+    },
+    FUHYO("歩") {
+        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+            val moved = place + player.forward
+            if (!moved.isOnBoard) {
+                return setOf()
+            }
+            val movedRectangle = board[moved]
+            if (movedRectangle == null || movedRectangle.player != player) {
+                return setOf(moved)
+            }
+            return setOf()
         }
     };
 
-    abstract fun movements(place: Place, player: Player): Set<Place>
+    companion object {
+        // fun anyNumber of squares
+    }
+
+    abstract fun movements(place: Place, player: Player, board: BoardModel): Set<Place>
 
     override fun toString() = string
 }

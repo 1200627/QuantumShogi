@@ -6,12 +6,36 @@ import quantumshogi.pieces.QuantumPiece
 import quantumshogi.player.Player
 
 object Chessboard {
-    val rows: ObservableList<Square> = FXCollections.observableArrayList()
+    private val rows: ObservableList<Square> = FXCollections.observableArrayList()
 
-    var playing = Player.P1
-    var status = Status.IDLE
+    private var playing = Player.P1
+    private var status = Status.IDLE
     var selected: Pair<Int, Int> = Pair(0, 0)
     var movable: List<Pair<Int, Int>> = emptyList()
+
+    fun update(set: Set<Square>): Boolean {
+        return rows.setAll(set)
+    }
+
+    fun selectPiece() {
+        status = Chessboard.Status.SELECTED
+    }
+
+    fun pieceIsSelected(): Boolean {
+        return status == Chessboard.Status.SELECTED
+    }
+
+    fun setIdol() {
+        status = Status.IDLE
+    }
+
+    fun turnIs(player: Player): Boolean {
+        return playing == player
+    }
+
+    fun next() {
+        playing = playing.nextPlayer
+    }
 
     init {
         initialize()
@@ -57,4 +81,10 @@ object Chessboard {
     }
 
     fun get(x: Int, y: Int): Square = rows[x + y * 9]
+
+    fun toModel(): BoardModel {
+        return BoardModel(rows.filter { it.piece != null }.associate {
+            Place(it.y, it.x) to it.piece!!
+        })
+    }
 }
