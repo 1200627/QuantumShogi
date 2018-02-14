@@ -10,7 +10,7 @@ class QuantumPiece(
         override val player: Player,
         private var x: Int,
         private var y: Int
-) : Rectangle(30.0, 40.0, Color.valueOf(PIECE_COLOR)), Piece {
+) : Rectangle(30.0, 40.0, Color.valueOf(player.color)), Piece {
     override val place by lazy { Place(y, x) }
     override val type by lazy { possibles[0] }
 
@@ -25,19 +25,15 @@ class QuantumPiece(
             }
 
             Chessboard.clearStyle()
-            val possibleDestination = mutableListOf<Pair<Int, Int>>()
+            val possibleDestination = possibles.flatMap {
+                it.movements(Place(y, x), player, Chessboard.toModel()).map { it.file to it.rank }
+            }.toSet()
 
-            possibles.forEach {
-                possibleDestination.addAll(it.movements(Place(y, x), player, Chessboard.toModel()).map { it.file to it.rank })
+            val checked = possibleDestination.filter {
+                val sq = Chessboard.get(it.first, it.second)
+                val qp = (sq.piece as? QuantumPiece)
+                qp == null || !Chessboard.turnIs(qp.player)
             }
-
-            val checked = possibleDestination.distinct().filter {
-                it.first in 0..8 && it.second in 0..8
-            }.filter {
-                        val sq = Chessboard.get(it.first, it.second)
-                        val qp = (sq.piece as? QuantumPiece)
-                        qp == null || !Chessboard.turnIs(qp.player)
-                    }
 
             checked.forEach {
                 val square = Chessboard.get(it.first, it.second)
@@ -52,9 +48,5 @@ class QuantumPiece(
 
     override fun toString(): String {
         return possibles[0].toString()
-    }
-
-    companion object {
-        const val PIECE_COLOR = "#B55704"
     }
 }

@@ -10,7 +10,7 @@ object Chessboard {
 
     private var playing = Player.P1
     private var status = Status.IDLE
-    var selected: Pair<Int, Int> = Pair(0, 0)
+    var selected: Pair<Int, Int> = 0 to 0
     var movable: List<Pair<Int, Int>> = emptyList()
 
     fun update(set: Set<Square>): Boolean {
