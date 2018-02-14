@@ -7,4 +7,5 @@ interface Piece {
     val place: Place
     val type: PieceType
     val player: Player
+    val possibles: List<PieceType>
 }

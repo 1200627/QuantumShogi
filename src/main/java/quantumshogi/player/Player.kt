@@ -1,7 +1,7 @@
 package quantumshogi.player
 
-enum class Player( val direction: Int, val color:String) {
-    P1(1, "#B55704") {
+enum class Player(val direction: Int, val color: String) {
+    P1(1, "#000000") {
         override val forward by lazy { Movement(1, 0) }
         override val backward by lazy { Movement(-1, 0) }
         override val left by lazy { Movement(0, 1) }

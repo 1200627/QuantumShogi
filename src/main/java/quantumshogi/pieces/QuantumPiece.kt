@@ -8,13 +8,11 @@ import quantumshogi.player.Player
 
 class QuantumPiece(
         override val player: Player,
-        private var x: Int,
-        private var y: Int
+        override val place: Place
 ) : Rectangle(30.0, 40.0, Color.valueOf(player.color)), Piece {
-    override val place by lazy { Place(y, x) }
     override val type by lazy { possibles[0] }
 
-    private val possibles: List<PieceType> = PieceType.values().toMutableList()
+    override val possibles: List<PieceType> = PieceType.values().toMutableList()
 
     init {
         stroke = Color.BLACK
@@ -24,25 +22,7 @@ class QuantumPiece(
                 return@setOnMouseClicked
             }
 
-            Chessboard.clearStyle()
-            val possibleDestination = possibles.flatMap {
-                it.movements(Place(y, x), player, Chessboard.toModel()).map { it.file to it.rank }
-            }.toSet()
-
-            val checked = possibleDestination.filter {
-                val sq = Chessboard.get(it.first, it.second)
-                val qp = (sq.piece as? QuantumPiece)
-                qp == null || !Chessboard.turnIs(qp.player)
-            }
-
-            checked.forEach {
-                val square = Chessboard.get(it.first, it.second)
-                square.style = "-fx-background-color:#ff0000a0"
-            }
-
-            Chessboard.selectPiece()
-            Chessboard.movable = checked
-            Chessboard.selected = x to y
+            Chessboard.selectPiece(place, player)
         }
     }
 
