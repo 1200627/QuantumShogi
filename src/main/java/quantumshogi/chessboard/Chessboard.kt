@@ -23,7 +23,7 @@ object Chessboard {
         Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
         selectedSquare.piece = null
 
-        Chessboard.clearStyle()
+        Chessboard.clearEnterable()
         playing = playing.nextPlayer
         status = Status.IDLE
 
@@ -33,8 +33,13 @@ object Chessboard {
         return true
     }
 
-    fun selectPiece(place: Place, player: Player) {
-        Chessboard.clearStyle()
+    fun selectPiece(place: Place) {
+        val player = toModel()[place]?.player
+        if (!turnIs(player ?: return)){
+            return
+        }
+
+        Chessboard.clearEnterable()
 
         status = Chessboard.Status.SELECTED
 
@@ -44,7 +49,7 @@ object Chessboard {
 
         possibleDestination.forEach {
             val square = Chessboard.get(it.file, it.rank)
-            square.style = "-fx-background-color:#ff0000a0"
+            square.enterableProperty.value = true
         }
 
         movable = possibleDestination
@@ -90,8 +95,8 @@ object Chessboard {
         MOVED
     }
 
-    private fun clearStyle() {
-        rows.forEach { it.style = "" }
+    private fun clearEnterable() {
+        rows.forEach { it.enterableProperty.value = false }
     }
 
     fun get(x: Int, y: Int): Square = rows[x + y * 9]
