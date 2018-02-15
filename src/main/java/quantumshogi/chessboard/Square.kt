@@ -1,28 +1,30 @@
 package quantumshogi.chessboard
 
-import javafx.collections.FXCollections
-import javafx.geometry.Pos
-import javafx.scene.layout.StackPane
+import javafx.application.Platform
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import quantumshogi.pieces.Piece
-import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 
 class Square(
         piece: Piece?,
         var place: Place
-) : StackPane() {
+) {
+    val hasPieceProperty = SimpleBooleanProperty(false)
+    val pieceProperty = SimpleObjectProperty(piece).apply {
+        addListener { _, _, _ -> }
+    }
+    val enterableProperty = SimpleBooleanProperty(false)
     var piece: Piece? = null
         set(value) {
             field = value
-            if (value != null) {
-                val qp = value as QuantumPiece
-                children.setAll(FXCollections.observableArrayList(qp))
-                StackPane.setAlignment(qp, Pos.CENTER)
+            Platform.runLater {
+                hasPieceProperty.value = value != null
+                pieceProperty.value = value
             }
         }
 
     init {
         this.piece = piece
-        setOnMouseClicked { Chessboard.moveToIfPossible(place) }
     }
 }
