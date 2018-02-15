@@ -8,7 +8,7 @@ import quantumshogi.pieces.QuantumPiece
 
 class Square(
         piece: Piece?,
-        val place: Place
+        var place: Place
 ) : StackPane() {
     var piece: Piece? = null
         set(value) {

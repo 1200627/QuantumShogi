@@ -27,6 +27,8 @@ object Chessboard {
         playing = playing.nextPlayer
         status = Status.IDLE
 
+        rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
+
         println(Chessboard.toModel())
     }
 

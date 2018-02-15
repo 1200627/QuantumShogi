@@ -8,7 +8,7 @@ import quantumshogi.player.Player
 
 class QuantumPiece(
         override val player: Player,
-        override val place: Place
+        override var place: Place
 ) : Rectangle(30.0, 40.0, Color.valueOf(player.color)), Piece {
     override val type by lazy { possibles[0] }
 
