@@ -97,7 +97,7 @@ object Chessboard {
     fun get(x: Int, y: Int): Square = rows[x + y * 9]
 
     operator fun get(place: Place): Square {
-        return rows[place.file + place.rank * 9]!!
+        return rows[place.file + place.rank * 9]
     }
 
     private fun toModel(): BoardModel {
