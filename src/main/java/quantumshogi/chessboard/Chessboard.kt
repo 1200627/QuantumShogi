@@ -1,5 +1,7 @@
 package quantumshogi.chessboard
 
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 import quantumshogi.player.Player
@@ -7,7 +9,7 @@ import quantumshogi.player.Player
 object Chessboard {
     private val rows = mutableListOf<Square>()
 
-    private var playing = Player.P1
+    private var playing = Player.BLACK
     private var status = Status.IDLE
     private var selected: Place = Place(0, 0)
     private var movable: Set<Place> = emptySet()
@@ -23,18 +25,35 @@ object Chessboard {
         Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
         selectedSquare.piece = null
 
-        Chessboard.clearStyle()
+        Chessboard.clearEnterable()
         playing = playing.nextPlayer
         status = Status.IDLE
 
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
 
+
+        if (Chessboard.get(to.file, to.rank).piece!!.possibles.any { it.canPromote }) {
+            if (to.rank in playing.promotableRank) {
+                if (confirmPromote()) {
+                    val newList = Chessboard.get(to.file, to.rank).piece!!.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(newList)
+                    println(newList)
+                }
+            }
+        }
+
         println(Chessboard.toModel())
         return true
     }
 
-    fun selectPiece(place: Place, player: Player) {
-        Chessboard.clearStyle()
+    fun selectPiece(place: Place) {
+        val player = toModel()[place]?.player
+        if (!turnIs(player ?: return)) {
+            return
+        }
+
+        Chessboard.clearEnterable()
 
         status = Chessboard.Status.SELECTED
 
@@ -44,7 +63,7 @@ object Chessboard {
 
         possibleDestination.forEach {
             val square = Chessboard.get(it.file, it.rank)
-            square.style = "-fx-background-color:#ff0000a0"
+            square.enterableProperty.value = true
         }
 
         movable = possibleDestination
@@ -55,24 +74,36 @@ object Chessboard {
         return playing == player
     }
 
+    /**
+     * 成るかどうかを確認するダイアログを表示するメソッド．
+     * YESであればtrueを返す．
+     */
+    fun confirmPromote(): Boolean {
+        val alert = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
+            title = "確認"
+        }
+        val selected = alert.showAndWait().orElse(ButtonType.NO)
+        return selected == ButtonType.YES
+    }
+
     init {
         (0..8).forEach { y ->
             (0..8).forEach { x ->
                 val sq = when (y) {
-                    0, 2 -> Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                    0, 2 -> Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
                     1 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                                Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
                             }
                             else -> Square(null, Place(y, x))
                         }
                     }
-                    6, 8 -> Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                    6, 8 -> Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
                     7 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                                Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
                             }
                             else -> Square(null, Place(y, x))
                         }
@@ -90,8 +121,8 @@ object Chessboard {
         MOVED
     }
 
-    private fun clearStyle() {
-        rows.forEach { it.style = "" }
+    private fun clearEnterable() {
+        rows.forEach { it.enterableProperty.value = false }
     }
 
     fun get(x: Int, y: Int): Square = rows[x + y * 9]
