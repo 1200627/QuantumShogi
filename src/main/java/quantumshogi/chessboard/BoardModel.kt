@@ -1,10 +1,10 @@
 package quantumshogi.chessboard
 
-import quantumshogi.pieces.Piece
+import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 
-data class BoardModel(private val pieces: Map<Place, Piece>) {
-    constructor(pieces: Set<Piece>) : this(pieces.associate { it.place to it })
+data class BoardModel(private val pieces: Map<Place, QuantumPiece>) {
+    constructor(pieces: Set<QuantumPiece>) : this(pieces.associate { it.place to it })
 
     operator fun get(place: Place) = pieces[place]
 
