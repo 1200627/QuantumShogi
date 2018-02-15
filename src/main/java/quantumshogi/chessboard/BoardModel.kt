@@ -1,6 +1,8 @@
 package quantumshogi.chessboard
 
 import quantumshogi.pieces.Piece
+import quantumshogi.place.Place
+import quantumshogi.player.Player
 
 data class BoardModel(private val pieces: Map<Place, Piece>) {
     constructor(pieces: Set<Piece>) : this(pieces.associate { it.place to it })
@@ -9,7 +11,11 @@ data class BoardModel(private val pieces: Map<Place, Piece>) {
 
     override fun toString() = (0..8).joinToString(separator = "") { rank ->
         (0..8).joinToString(separator = "", postfix = LINE_SEPARATOR) { file ->
-            pieces[Place(rank, file)]?.toString() ?: "□"
+            when (pieces[Place(rank, file)]?.player) {
+                Player.P1 -> "☗"
+                Player.P2 -> "☖"
+                else -> "□"
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 package quantumshogi.pieces
 
 import quantumshogi.chessboard.BoardModel
-import quantumshogi.chessboard.Place
+import quantumshogi.place.Place
 import quantumshogi.player.Movement
 import quantumshogi.player.Player
 

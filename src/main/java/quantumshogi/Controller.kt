@@ -5,7 +5,7 @@ import javafx.fxml.Initializable
 import javafx.geometry.HPos
 import javafx.scene.layout.GridPane
 import quantumshogi.chessboard.Chessboard
-import quantumshogi.chessboard.Place
+import quantumshogi.place.Place
 import java.net.URL
 import java.util.*
 
