@@ -6,7 +6,11 @@ import quantumshogi.player.Movement
 import quantumshogi.player.Player
 
 enum class PieceType(private val string: String) {
-    KING("王") {
+    KING_HIGHER_RANKED_PLAYER("王将") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file),
@@ -20,21 +24,58 @@ enum class PieceType(private val string: String) {
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
-    ROOK("飛") {
+    KING_LOWER_RANKED_PLAYER("玉将") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
+    },
+    ROOK("飛車") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_ROOK }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return listOf(player.forward, player.left, player.backward, player.right).flatMap {
                 anyNumberOfSquares(place, player, board, it)
             }.toSet()
         }
     },
-    BISHOP("角") {
+    PROMOTED_ROOK("竜王") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                ROOK.movements(place, player, board) + KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
+
+    },
+    BISHOP("角行") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_BISHOP }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return listOf(player.leftForward, player.leftBackward, player.rightForward, player.rightBackward).flatMap {
                 anyNumberOfSquares(place, player, board, it)
             }.toSet()
         }
     },
-    KIN("金") {
+    PROMOTED_BISHOP("竜馬") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                BISHOP.movements(place, player, board) + KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
+    },
+    GOLD("金将") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file),
@@ -46,7 +87,11 @@ enum class PieceType(private val string: String) {
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
-    GIN("銀") {
+    SILVER("銀将") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_SILVER }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file),
@@ -57,7 +102,19 @@ enum class PieceType(private val string: String) {
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
-    KEIMA("桂") {
+    PROMOTED_SILVER("成銀") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                GOLD.movements(place, player, board)
+    },
+    KNIGHT("桂馬") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_KNIGHT }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 2 * player.direction, place.file + 1),
@@ -65,17 +122,49 @@ enum class PieceType(private val string: String) {
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
-    KYOSHA("香") {
+    PROMOTED_KNIGHT("成桂") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                GOLD.movements(place, player, board)
+    },
+    LANCE("香車") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_LANCE }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return anyNumberOfSquares(place, player, board, player.forward)
         }
     },
-    FUHYO("歩") {
+    PROMOTED_LANCE("成香") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                GOLD.movements(place, player, board)
+    },
+    PAWN("歩兵") {
+        override val isPromoted by lazy { false }
+        override val canPromote by lazy { true }
+        override val promoted by lazy { PROMOTED_PAWN }
+
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file)
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
+    },
+    PROMOTED_PAWN("と金") {
+        override val isPromoted by lazy { true }
+        override val canPromote by lazy { false }
+        override val promoted by lazy { null }
+
+        override fun movements(place: Place, player: Player, board: BoardModel) =
+                GOLD.movements(place, player, board)
     };
 
     companion object {
@@ -110,6 +199,10 @@ enum class PieceType(private val string: String) {
     }
 
     abstract fun movements(place: Place, player: Player, board: BoardModel): Set<Place>
+
+    abstract val isPromoted: Boolean
+    abstract val canPromote: Boolean
+    abstract val promoted: PieceType?
 
     override fun toString() = string
 }
