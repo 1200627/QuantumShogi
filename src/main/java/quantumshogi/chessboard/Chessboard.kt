@@ -14,7 +14,7 @@ object Chessboard {
     private var movable: Set<Place> = emptySet()
 
     fun isNotMovableTo(to: Place): Boolean {
-        return !Chessboard.pieceIsSelected() || !Chessboard.movable.contains(to)
+        return status != Chessboard.Status.SELECTED || !Chessboard.movable.contains(to)
     }
 
     fun moveTo(to: Place) {
@@ -48,10 +48,6 @@ object Chessboard {
 
         movable = possibleDestination
         selected = place
-    }
-
-    fun pieceIsSelected(): Boolean {
-        return status == Chessboard.Status.SELECTED
     }
 
     fun turnIs(player: Player): Boolean {
