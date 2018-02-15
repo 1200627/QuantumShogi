@@ -1,5 +1,7 @@
 package quantumshogi.chessboard
 
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 import quantumshogi.player.Player
@@ -35,7 +37,7 @@ object Chessboard {
 
     fun selectPiece(place: Place) {
         val player = toModel()[place]?.player
-        if (!turnIs(player ?: return)){
+        if (!turnIs(player ?: return)) {
             return
         }
 
@@ -58,6 +60,18 @@ object Chessboard {
 
     fun turnIs(player: Player): Boolean {
         return playing == player
+    }
+
+    /**
+     * 成るかどうかを確認するダイアログを表示するメソッド．
+     * YESであればtrueを返す．
+     */
+    fun confirmPromote(): Boolean {
+        val alert = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
+            title = "確認"
+        }
+        val selected = alert.showAndWait().orElse(ButtonType.NO)
+        return selected == ButtonType.YES
     }
 
     init {
