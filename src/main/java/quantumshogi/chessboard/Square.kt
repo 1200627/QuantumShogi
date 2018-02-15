@@ -8,7 +8,7 @@ import quantumshogi.place.Place
 
 class Square(
         piece: QuantumPiece?,
-        var place: Place
+        val place: Place
 ) {
     val hasPieceProperty = SimpleBooleanProperty(false)
     val pieceProperty = SimpleObjectProperty(piece).apply {
@@ -23,8 +23,4 @@ class Square(
                 pieceProperty.value = value
             }
         }
-
-    init {
-        this.piece = piece
-    }
 }

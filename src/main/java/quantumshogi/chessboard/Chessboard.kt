@@ -8,7 +8,36 @@ import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 object Chessboard {
-    private val rows = mutableListOf<Square>()
+    private val rows by lazy { (0..8).flatMap { rank -> (0..8).map { file -> Square(null, Place(rank, file)) } } }
+
+    init {
+        (0..8).map { rank ->
+            (0..8).map { file ->
+                val place by lazy { Place(rank, file) }
+                rows[rank * 9 + file].piece = when (rank) {
+                    0, 2 -> QuantumPiece(Player.BLACK, place)
+                    1 -> {
+                        when (file) {
+                            1, 7 -> {
+                                QuantumPiece(Player.BLACK, place)
+                            }
+                            else -> null
+                        }
+                    }
+                    6, 8 -> QuantumPiece(Player.WHITE, place)
+                    7 -> {
+                        when (file) {
+                            1, 7 -> {
+                                QuantumPiece(Player.WHITE, place)
+                            }
+                            else -> null
+                        }
+                    }
+                    else -> null
+                }
+            }
+        }
+    }
 
     private var playing = Player.BLACK
     private var status = Status.IDLE
@@ -30,6 +59,8 @@ object Chessboard {
 
         Chessboard.clearEnterable()
 
+        //rows[x + y * 9].piece = null
+        //rows[to.file + to.rank * 9].piece = QuantumPiece(playing, selected)
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
 
         val cloned = Chessboard.get(to.file, to.rank).piece!!.possibles.toList()
@@ -88,41 +119,12 @@ object Chessboard {
      * 成るかどうかを確認するダイアログを表示するメソッド．
      * YESであればtrueを返す．
      */
-    fun confirmPromote(): Boolean {
+    private fun confirmPromote(): Boolean {
         val alert = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
             title = "確認"
         }
         val selected = alert.showAndWait().orElse(ButtonType.NO)
         return selected == ButtonType.YES
-    }
-
-    init {
-        (0..8).forEach { y ->
-            (0..8).forEach { x ->
-                val sq = when (y) {
-                    0, 2 -> Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
-                    1 -> {
-                        when (x) {
-                            1, 7 -> {
-                                Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
-                            }
-                            else -> Square(null, Place(y, x))
-                        }
-                    }
-                    6, 8 -> Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
-                    7 -> {
-                        when (x) {
-                            1, 7 -> {
-                                Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
-                            }
-                            else -> Square(null, Place(y, x))
-                        }
-                    }
-                    else -> Square(null, Place(y, x))
-                }
-                rows.add(sq)
-            }
-        }
     }
 
     enum class Status {
@@ -136,6 +138,12 @@ object Chessboard {
     }
 
     fun get(x: Int, y: Int): Square = rows[x + y * 9]
+
+    operator fun set(place: Place, element: QuantumPiece): QuantumPiece? {
+        val old = rows[place.rank * 9 + place.file].piece
+        rows[place.rank * 9 + place.file].piece = element
+        return old
+    }
 
     operator fun get(place: Place): Square {
         return rows[place.file + place.rank * 9]
