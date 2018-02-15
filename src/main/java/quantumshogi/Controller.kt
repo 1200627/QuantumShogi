@@ -23,8 +23,6 @@ class Controller : Initializable {
     @FXML
     private lateinit var chessboardPane: GridPane
 
-    private val chessboardNodes: ObservableList<Node> = FXCollections.observableArrayList()
-
     override fun initialize(location: URL, resources: ResourceBundle?) {
         (0..8).forEach { y ->
             chessboardPane.columnConstraints[y].halignment = HPos.CENTER
@@ -53,7 +51,6 @@ class Controller : Initializable {
                         }, square.pieceProperty))
                     })
                 }
-                chessboardNodes.add(stackPane)
                 chessboardPane.add(stackPane, x, y)
             }
         }
