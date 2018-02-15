@@ -17,7 +17,7 @@ enum class PieceType(private val string: String) {
                     Place(place.rank - 1 * player.direction, place.file),
                     Place(place.rank - 1 * player.direction, place.file - 1),
                     Place(place.rank - 1 * player.direction, place.file + 1)
-            ).filter { !isMine(it, player, board) }.toSet()
+            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     ROOK("飛") {
@@ -43,7 +43,7 @@ enum class PieceType(private val string: String) {
                     Place(place.rank, place.file + 1),
                     Place(place.rank, place.file - 1),
                     Place(place.rank - 1 * player.direction, place.file)
-            ).filter { !isMine(it, player, board) }.toSet()
+            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     GIN("銀") {
@@ -54,7 +54,7 @@ enum class PieceType(private val string: String) {
                     Place(place.rank + 1 * player.direction, place.file + 1),
                     Place(place.rank - 1 * player.direction, place.file - 1),
                     Place(place.rank - 1 * player.direction, place.file + 1)
-            ).filter { !isMine(it, player, board) }.toSet()
+            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     KEIMA("桂") {
@@ -62,7 +62,7 @@ enum class PieceType(private val string: String) {
             return setOf(
                     Place(place.rank + 2 * player.direction, place.file + 1),
                     Place(place.rank + 2 * player.direction, place.file - 1)
-            ).filter { !isMine(it, player, board) }.toSet()
+            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     KYOSHA("香") {
@@ -74,7 +74,7 @@ enum class PieceType(private val string: String) {
         override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
             return setOf(
                     Place(place.rank + 1 * player.direction, place.file)
-            ).filter { !isMine(it, player, board) }.toSet()
+            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     };
 
