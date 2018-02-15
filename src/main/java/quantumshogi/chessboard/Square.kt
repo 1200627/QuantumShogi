@@ -3,11 +3,11 @@ package quantumshogi.chessboard
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import quantumshogi.pieces.Piece
+import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 
 class Square(
-        piece: Piece?,
+        piece: QuantumPiece?,
         var place: Place
 ) {
     val hasPieceProperty = SimpleBooleanProperty(false)
@@ -15,7 +15,7 @@ class Square(
         addListener { _, _, _ -> }
     }
     val enterableProperty = SimpleBooleanProperty(false)
-    var piece: Piece? = null
+    var piece: QuantumPiece? = null
         set(value) {
             field = value
             Platform.runLater {
