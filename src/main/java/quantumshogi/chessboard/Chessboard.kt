@@ -9,7 +9,7 @@ import quantumshogi.player.Player
 object Chessboard {
     private val rows = mutableListOf<Square>()
 
-    private var playing = Player.P1
+    private var playing = Player.BLACK
     private var status = Status.IDLE
     private var selected: Place = Place(0, 0)
     private var movable: Set<Place> = emptySet()
@@ -30,6 +30,18 @@ object Chessboard {
         status = Status.IDLE
 
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
+
+
+        if (Chessboard.get(to.file, to.rank).piece!!.possibles.any { it.canPromote }) {
+            if (to.rank in playing.promotableRank) {
+                if (confirmPromote()) {
+                    val newList = Chessboard.get(to.file, to.rank).piece!!.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(newList)
+                    println(newList)
+                }
+            }
+        }
 
         println(Chessboard.toModel())
         return true
@@ -78,20 +90,20 @@ object Chessboard {
         (0..8).forEach { y ->
             (0..8).forEach { x ->
                 val sq = when (y) {
-                    0, 2 -> Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                    0, 2 -> Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
                     1 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                                Square(QuantumPiece(Player.BLACK, Place(y, x)), Place(y, x))
                             }
                             else -> Square(null, Place(y, x))
                         }
                     }
-                    6, 8 -> Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                    6, 8 -> Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
                     7 -> {
                         when (x) {
                             1, 7 -> {
-                                Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                                Square(QuantumPiece(Player.WHITE, Place(y, x)), Place(y, x))
                             }
                             else -> Square(null, Place(y, x))
                         }

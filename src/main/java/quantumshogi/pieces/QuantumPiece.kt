@@ -1,18 +1,23 @@
 package quantumshogi.pieces
 
 import javafx.beans.property.SimpleObjectProperty
-import javafx.scene.paint.Color
-import javafx.scene.shape.Rectangle
-import quantumshogi.chessboard.Chessboard
 import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 class QuantumPiece(
         override val player: Player,
         override var place: Place
-): Piece {
-    override val type by lazy { possibles[0] }
-    override val possibles: List<PieceType> = PieceType.values().toMutableList()
+) : Piece {
+    override val possibles: MutableList<PieceType> = mutableListOf(
+            //if (player == Player.BLACK) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
+            //PieceType.ROOK,
+            PieceType.BISHOP,
+            //PieceType.GOLD,
+            //PieceType.SILVER,
+            //PieceType.KNIGHT,
+            //PieceType.LANCE,
+            PieceType.PAWN
+    )
     override val playerProperty = SimpleObjectProperty(player)
 
     override fun toString(): String {
