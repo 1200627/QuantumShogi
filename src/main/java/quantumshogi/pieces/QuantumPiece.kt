@@ -8,8 +8,16 @@ class QuantumPiece(
         override val player: Player,
         override var place: Place
 ) : Piece {
-    override val type by lazy { possibles[0] }
-    override val possibles: List<PieceType> = PieceType.values().toMutableList()
+    override val possibles: MutableList<PieceType> = mutableListOf(
+            //if (player == Player.BLACK) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
+            //PieceType.ROOK,
+            PieceType.BISHOP,
+            //PieceType.GOLD,
+            //PieceType.SILVER,
+            //PieceType.KNIGHT,
+            //PieceType.LANCE,
+            PieceType.PAWN
+    )
     override val playerProperty = SimpleObjectProperty(player)
 
     override fun toString(): String {

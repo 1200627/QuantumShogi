@@ -31,6 +31,18 @@ object Chessboard {
 
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
 
+
+        if (Chessboard.get(to.file, to.rank).piece!!.possibles.any { it.canPromote }) {
+            if (to.rank in playing.promotableRank) {
+                if (confirmPromote()) {
+                    val newList = Chessboard.get(to.file, to.rank).piece!!.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
+                    Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(newList)
+                    println(newList)
+                }
+            }
+        }
+
         println(Chessboard.toModel())
         return true
     }
