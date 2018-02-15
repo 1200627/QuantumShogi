@@ -1,6 +1,7 @@
 package quantumshogi
 
 import javafx.beans.binding.Bindings
+import javafx.beans.binding.BooleanBinding
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.fxml.FXML
@@ -30,7 +31,7 @@ class Controller : Initializable {
                 val square = Chessboard[place]
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
-                    styleProperty().bind(Bindings.createStringBinding(Callable {
+                    styleProperty().bind(Bindings.createStringBinding(Callable{
                         if (square.enterableProperty.value) {
                             return@Callable "-fx-background-color:#ff0000a0"
                         }
