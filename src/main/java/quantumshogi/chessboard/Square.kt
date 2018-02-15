@@ -7,9 +7,8 @@ import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
 
 class Square(
-        piece: Piece? = null,
-        private val x: Int,
-        private val y: Int
+        piece: Piece?,
+        var place: Place
 ) : StackPane() {
     var piece: Piece? = null
         set(value) {
@@ -24,23 +23,10 @@ class Square(
     init {
         this.piece = piece
         setOnMouseClicked {
-            if (Chessboard.status != Chessboard.Status.SELECTED || !Chessboard.movable.contains(Pair(x, y))) {
+            if (Chessboard.isNotMovableTo(place)) {
                 return@setOnMouseClicked
             }
-
-            val selected = Chessboard.selected
-            val selectedSquare = Chessboard.get(selected.first, selected.second)
-            val selectedPiece = selectedSquare.piece
-            selectedSquare.piece = null
-            this.piece = selectedPiece
-
-            Chessboard.clearStyle()
-            Chessboard.playing = if (Chessboard.playing == Piece.Player.P1) {
-                Piece.Player.P2
-            } else {
-                Piece.Player.P1
-            }
-            Chessboard.status = Chessboard.Status.IDLE
+            Chessboard.moveTo(place)
         }
     }
 }

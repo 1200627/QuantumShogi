@@ -2,19 +2,85 @@ package quantumshogi.chessboard
 
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
+import quantumshogi.player.Player
 
 object Chessboard {
-    val rows: ObservableList<Square> = FXCollections.observableArrayList()
+    private val rows: ObservableList<Square> = FXCollections.observableArrayList()
 
-    var playing = Piece.Player.P1
-    var status = Status.IDLE
-    var selected: Pair<Int, Int> = Pair(0, 0)
-    var movable: List<Pair<Int, Int>> = emptyList()
+    private var playing = Player.P1
+    private var status = Status.IDLE
+    private var selected: Place = Place(0, 0)
+    private var movable: Set<Place> = emptySet()
+
+    fun isNotMovableTo(to: Place): Boolean {
+        return status != Chessboard.Status.SELECTED || !Chessboard.movable.contains(to)
+    }
+
+    fun moveTo(to: Place) {
+        val (y, x) = Chessboard.selected
+        val selectedSquare = Chessboard.get(x, y)
+        Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
+        selectedSquare.piece = null
+
+        Chessboard.clearStyle()
+        playing = playing.nextPlayer
+        status = Status.IDLE
+
+        rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
+
+        println(Chessboard.toModel())
+    }
+
+    fun selectPiece(place: Place, player: Player) {
+        Chessboard.clearStyle()
+
+        status = Chessboard.Status.SELECTED
+
+        val possibleDestination = toModel()[place]?.possibles?.flatMap {
+            it.movements(place, player, Chessboard.toModel())
+        }?.toSet() ?: setOf()
+
+        possibleDestination.forEach {
+            val square = Chessboard.get(it.file, it.rank)
+            square.style = "-fx-background-color:#ff0000a0"
+        }
+
+        movable = possibleDestination
+        selected = place
+    }
+
+    fun turnIs(player: Player): Boolean {
+        return playing == player
+    }
 
     init {
-        initialize()
+        (0..8).forEach { y ->
+            (0..8).forEach { x ->
+                val sq = when (y) {
+                    0, 2 -> Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                    1 -> {
+                        when (x) {
+                            1, 7 -> {
+                                Square(QuantumPiece(Player.P1, Place(y, x)), Place(y, x))
+                            }
+                            else -> Square(null, Place(y, x))
+                        }
+                    }
+                    6, 8 -> Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                    7 -> {
+                        when (x) {
+                            1, 7 -> {
+                                Square(QuantumPiece(Player.P2, Place(y, x)), Place(y, x))
+                            }
+                            else -> Square(null, Place(y, x))
+                        }
+                    }
+                    else -> Square(null, Place(y, x))
+                }
+                rows.add(sq)
+            }
+        }
     }
 
     enum class Status {
@@ -23,38 +89,17 @@ object Chessboard {
         MOVED
     }
 
-    fun clearStyle() {
+    private fun clearStyle() {
         rows.forEach { it.style = "" }
     }
 
-    fun initialize() {
-        (0 until 9).forEach { y ->
-            (0 until 9).forEach { x ->
-                val sq = when (y) {
-                    0, 2 -> Square(QuantumPiece(Piece.Player.P1, x, y), x, y)
-                    1 -> {
-                        when (x) {
-                            1, 7 -> {
-                                Square(QuantumPiece(Piece.Player.P1, x, y), x, y)
-                            }
-                            else -> Square(null, x, y)
-                        }
-                    }
-                    6, 8 -> Square(QuantumPiece(Piece.Player.P2, x, y), x, y)
-                    7 -> {
-                        when (x) {
-                            1, 7 -> {
-                                Square(QuantumPiece(Piece.Player.P2, x, y), x, y)
-                            }
-                            else -> Square(null, x, y)
-                        }
-                    }
-                    else -> Square(null, x, y)
-                }
-                rows.add(sq)
-            }
-        }
+    fun get(x: Int, y: Int): Square = rows[x + y * 9]
+
+    operator fun get(place: Place): Square {
+        return rows[place.file + place.rank * 9]!!
     }
 
-    fun get(x: Int, y: Int): Square = rows[x + y * 9]
+    private fun toModel(): BoardModel {
+        return BoardModel(rows.filter { it.piece != null }.map { it.piece!! }.toSet())
+    }
 }
