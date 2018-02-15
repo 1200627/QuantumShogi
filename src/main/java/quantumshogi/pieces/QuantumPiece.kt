@@ -3,7 +3,7 @@ package quantumshogi.pieces
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import quantumshogi.chessboard.Chessboard
-import quantumshogi.chessboard.Place
+import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 class QuantumPiece(

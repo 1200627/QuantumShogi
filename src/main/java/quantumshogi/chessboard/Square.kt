@@ -5,6 +5,7 @@ import javafx.geometry.Pos
 import javafx.scene.layout.StackPane
 import quantumshogi.pieces.Piece
 import quantumshogi.pieces.QuantumPiece
+import quantumshogi.place.Place
 
 class Square(
         piece: Piece?,
@@ -22,11 +23,6 @@ class Square(
 
     init {
         this.piece = piece
-        setOnMouseClicked {
-            if (Chessboard.isNotMovableTo(place)) {
-                return@setOnMouseClicked
-            }
-            Chessboard.moveTo(place)
-        }
+        setOnMouseClicked { Chessboard.moveToIfPossible(place) }
     }
 }

@@ -1,23 +1,23 @@
 package quantumshogi.chessboard
 
-import javafx.collections.FXCollections
-import javafx.collections.ObservableList
 import quantumshogi.pieces.QuantumPiece
+import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 object Chessboard {
-    private val rows: ObservableList<Square> = FXCollections.observableArrayList()
+    private val rows = mutableListOf<Square>()
 
     private var playing = Player.P1
     private var status = Status.IDLE
     private var selected: Place = Place(0, 0)
     private var movable: Set<Place> = emptySet()
 
-    fun isNotMovableTo(to: Place): Boolean {
-        return !Chessboard.pieceIsSelected() || !Chessboard.movable.contains(to)
-    }
 
-    fun moveTo(to: Place) {
+    fun moveToIfPossible(to: Place): Boolean {
+        if (status != Chessboard.Status.SELECTED || !Chessboard.movable.contains(to)) {
+            return false
+        }
+
         val (y, x) = Chessboard.selected
         val selectedSquare = Chessboard.get(x, y)
         Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
@@ -30,6 +30,7 @@ object Chessboard {
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
 
         println(Chessboard.toModel())
+        return true
     }
 
     fun selectPiece(place: Place, player: Player) {
@@ -48,10 +49,6 @@ object Chessboard {
 
         movable = possibleDestination
         selected = place
-    }
-
-    fun pieceIsSelected(): Boolean {
-        return status == Chessboard.Status.SELECTED
     }
 
     fun turnIs(player: Player): Boolean {
