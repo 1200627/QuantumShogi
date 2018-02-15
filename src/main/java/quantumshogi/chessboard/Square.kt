@@ -4,16 +4,10 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import quantumshogi.pieces.QuantumPiece
-import quantumshogi.place.Place
 
-class Square(
-        piece: QuantumPiece?,
-        val place: Place
-) {
+class Square(piece: QuantumPiece?) {
     val hasPieceProperty = SimpleBooleanProperty(false)
-    val pieceProperty = SimpleObjectProperty(piece).apply {
-        addListener { _, _, _ -> }
-    }
+    val pieceProperty = SimpleObjectProperty(piece).apply { addListener { _, _, _ -> } }
     val enterableProperty = SimpleBooleanProperty(false)
     var piece: QuantumPiece? = null
         set(value) {

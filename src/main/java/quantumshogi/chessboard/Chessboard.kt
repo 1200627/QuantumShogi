@@ -8,33 +8,35 @@ import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 object Chessboard {
-    private val rows by lazy { (0..8).flatMap { rank -> (0..8).map { file -> Square(null, Place(rank, file)) } } }
+    val boardView by lazy { (0..80).map { Square(null) } }
+
+    private val boardModel by lazy { mutableSetOf<QuantumPiece>() }
 
     init {
+        boardModel.clear()
+
         (0..8).map { rank ->
             (0..8).map { file ->
                 val place by lazy { Place(rank, file) }
-                rows[rank * 9 + file].piece = when (rank) {
-                    0, 2 -> QuantumPiece(Player.BLACK, place)
-                    1 -> {
-                        when (file) {
-                            1, 7 -> {
-                                QuantumPiece(Player.BLACK, place)
-                            }
-                            else -> null
-                        }
+                when {
+                    rank == 0 || rank == 2 -> boardModel.add(QuantumPiece(Player.BLACK, place))
+                    rank == 1 && (file == 1 || file == 7) -> boardModel.add(QuantumPiece(Player.BLACK, place))
+                    rank == 6 || rank == 8 -> boardModel.add(QuantumPiece(Player.WHITE, place))
+                    rank == 7 && (file == 1 || file == 7) -> boardModel.add(QuantumPiece(Player.WHITE, place))
+                    else -> {
                     }
-                    6, 8 -> QuantumPiece(Player.WHITE, place)
-                    7 -> {
-                        when (file) {
-                            1, 7 -> {
-                                QuantumPiece(Player.WHITE, place)
-                            }
-                            else -> null
-                        }
-                    }
-                    else -> null
                 }
+            }
+        }
+
+        updateView()
+    }
+
+    private fun updateView() {
+        (0..8).map { rank ->
+            (0..8).map { file ->
+                val place by lazy { Place(rank, file) }
+                boardView[rank * 9 + file].piece = boardModel.singleOrNull { it.place == place }
             }
         }
     }
@@ -44,39 +46,37 @@ object Chessboard {
     private var selected: Place = Place(0, 0)
     private var movable: Set<Place> = emptySet()
 
-
     fun moveToIfPossible(to: Place): Boolean {
-        if (status != Chessboard.Status.SELECTED || !Chessboard.movable.contains(to)) {
+        if (status != Status.SELECTED || !movable.contains(to)) {
             return false
         }
 
         val before = toModel()
 
-        val (y, x) = Chessboard.selected
-        val selectedSquare = Chessboard.get(x, y)
-        Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
-        selectedSquare.piece = null
+        val selectedPiece = boardModel.single { it.place == selected }
+        if (!boardModel.removeIf { it.place == selected }) {
+            throw IllegalStateException()
+        }
 
-        Chessboard.clearEnterable()
+        val movedPiece = QuantumPiece(selectedPiece.player, to)
+        boardModel.add(movedPiece)
 
-        //rows[x + y * 9].piece = null
-        //rows[to.file + to.rank * 9].piece = QuantumPiece(playing, selected)
-        rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
+        clearEnterable()
 
-        val cloned = Chessboard.get(to.file, to.rank).piece!!.possibles.toList()
+        val cloned = movedPiece.possibles.toList()
         val filtered = cloned.filter { it.movements(selected, playing, before).contains(to) }
         println(PieceType.GOLD.movements(selected, playing, before))
         println("$cloned -> $filtered")
 
-        Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
-        Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(filtered)
+        movedPiece.possibles.clear()
+        movedPiece.possibles.addAll(filtered)
 
-        if (Chessboard.get(to.file, to.rank).piece!!.possibles.any { it.canPromote }) {
+        if (movedPiece.possibles.any { it.canPromote }) {
             if (to.rank in playing.promotableRank) {
                 if (confirmPromote()) {
-                    val newList = Chessboard.get(to.file, to.rank).piece!!.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
-                    Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
-                    Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(newList)
+                    val newList = movedPiece.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
+                    movedPiece.possibles.clear()
+                    movedPiece.possibles.addAll(newList)
                     println(newList)
                 }
             }
@@ -84,41 +84,36 @@ object Chessboard {
 
         playing = playing.nextPlayer
         status = Status.IDLE
-        println(Chessboard.toModel())
+        println(toModel())
+
+        updateView()
         return true
     }
 
     fun selectPiece(place: Place) {
         val player = toModel()[place]?.player
-        if (!turnIs(player ?: return)) {
+        if (playing != player) {
             return
         }
 
-        Chessboard.clearEnterable()
+        clearEnterable()
 
-        status = Chessboard.Status.SELECTED
+        status = Status.SELECTED
 
         val possibleDestination = toModel()[place]?.possibles?.flatMap {
-            it.movements(place, player, Chessboard.toModel())
+            it.movements(place, player, toModel())
         }?.toSet() ?: setOf()
 
         possibleDestination.forEach {
-            val square = Chessboard.get(it.file, it.rank)
+            val square = boardView[it.file + it.rank * 9]
             square.enterableProperty.value = true
         }
 
         movable = possibleDestination
         selected = place
+        updateView()
     }
 
-    fun turnIs(player: Player): Boolean {
-        return playing == player
-    }
-
-    /**
-     * 成るかどうかを確認するダイアログを表示するメソッド．
-     * YESであればtrueを返す．
-     */
     private fun confirmPromote(): Boolean {
         val alert = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
             title = "確認"
@@ -134,22 +129,14 @@ object Chessboard {
     }
 
     private fun clearEnterable() {
-        rows.forEach { it.enterableProperty.value = false }
+        boardView.forEach { it.enterableProperty.value = false }
     }
 
-    fun get(x: Int, y: Int): Square = rows[x + y * 9]
-
-    operator fun set(place: Place, element: QuantumPiece): QuantumPiece? {
-        val old = rows[place.rank * 9 + place.file].piece
-        rows[place.rank * 9 + place.file].piece = element
-        return old
-    }
-
-    operator fun get(place: Place): Square {
-        return rows[place.file + place.rank * 9]
+    operator fun get(place: Place): QuantumPiece? {
+        return boardModel.singleOrNull { it.place == place }
     }
 
     private fun toModel(): BoardModel {
-        return BoardModel(rows.filter { it.piece != null }.map { it.piece!! }.toSet())
+        return BoardModel(boardModel)
     }
 }
