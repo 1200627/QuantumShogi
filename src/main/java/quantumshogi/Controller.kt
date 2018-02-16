@@ -38,14 +38,16 @@ class Controller : Initializable {
                         }
                         ""
                     }, square.enterableProperty))
-                    setOnMouseClicked { Chessboard.moveToIfPossible(place) }
+                    setOnMouseClicked {
+                        if (square.piece != null) {
+                            Chessboard.selectPiece(place)
+                        }
+                        Chessboard.moveToIfPossible(place)
+                    }
 
                     children.add(Rectangle(30.0, 40.0).apply {
                         stroke = Color.BLACK
                         strokeWidth = 1.0
-                        setOnMouseClicked {
-                            Chessboard.selectPiece(place)
-                        }
                         visibleProperty().bind(square.hasPieceProperty)
                         disableProperty().bind(!square.hasPieceProperty)
                         fillProperty().bind(Bindings.createObjectBinding(Callable {
