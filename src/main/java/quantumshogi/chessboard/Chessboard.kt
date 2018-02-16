@@ -8,135 +8,51 @@ import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 object Chessboard {
-    val boardView by lazy { (0..80).map { Square(null) } }
-
-    private val boardModel by lazy { mutableSetOf<QuantumPiece>() }
+    val boardView = BoardViewModel()
+    private var boardModel = BoardModel()
 
     init {
-        boardModel.clear()
-
-        (0..8).map { rank ->
-            (0..8).map { file ->
-                val place by lazy { Place(rank, file) }
-                when {
-                    rank == 0 || rank == 2 -> boardModel.add(QuantumPiece(Player.BLACK, place))
-                    rank == 1 && (file == 1 || file == 7) -> boardModel.add(QuantumPiece(Player.BLACK, place))
-                    rank == 6 || rank == 8 -> boardModel.add(QuantumPiece(Player.WHITE, place))
-                    rank == 7 && (file == 1 || file == 7) -> boardModel.add(QuantumPiece(Player.WHITE, place))
-                    else -> {
-                    }
-                }
-            }
-        }
-
-        updateView()
+        boardView.updateView(boardModel)
     }
 
-    private fun updateView() {
-        (0..8).map { rank ->
-            (0..8).map { file ->
-                val place by lazy { Place(rank, file) }
-                boardView[rank * 9 + file].piece = boardModel.singleOrNull { it.place == place }
-            }
-        }
-    }
-
-    private var playing = Player.BLACK
-    private var status = Status.IDLE
-    private var selected: Place = Place(0, 0)
-    private var movable: Set<Place> = emptySet()
+    private var selected: Place? = null
 
     fun moveToIfPossible(to: Place): Boolean {
-        if (status != Status.SELECTED || !movable.contains(to)) {
+        if (selected == null) {
             return false
         }
-
-        val before = toModel()
-
-        val selectedPiece = boardModel.single { it.place == selected }
-        if (!boardModel.removeIf { it.place == selected }) {
-            throw IllegalStateException()
+        val old = boardModel
+        boardModel = boardModel.moveToIfPossible(selected!!, to)
+        if (old == boardModel) {
+            return false
         }
+        println(boardModel)
 
-        val movedPiece = QuantumPiece(selectedPiece.player, to)
-        boardModel.add(movedPiece)
+        selected = null
+        boardView.clearEnterable()
+        boardView.updateView(boardModel)
 
-        clearEnterable()
-
-        val cloned = movedPiece.possibles.toList()
-        val filtered = cloned.filter { it.movements(selected, playing, before).contains(to) }
-        println(PieceType.GOLD.movements(selected, playing, before))
-        println("$cloned -> $filtered")
-
-        movedPiece.possibles.clear()
-        movedPiece.possibles.addAll(filtered)
-
-        if (movedPiece.possibles.any { it.canPromote }) {
-            if (to.rank in playing.promotableRank) {
-                if (confirmPromote()) {
-                    val newList = movedPiece.possibles.filter { it.canPromote }.map { it.promoted!! }.toList()
-                    movedPiece.possibles.clear()
-                    movedPiece.possibles.addAll(newList)
-                    println(newList)
-                }
-            }
-        }
-
-        playing = playing.nextPlayer
-        status = Status.IDLE
-        println(toModel())
-
-        updateView()
         return true
     }
 
     fun selectPiece(place: Place) {
-        val player = toModel()[place]?.player
-        if (playing != player) {
+        val player = boardModel.playing
+        if (boardModel[place]?.player != player) {
             return
         }
 
-        clearEnterable()
-
-        status = Status.SELECTED
-
-        val possibleDestination = toModel()[place]?.possibles?.flatMap {
-            it.movements(place, player, toModel())
-        }?.toSet() ?: setOf()
-
-        possibleDestination.forEach {
-            val square = boardView[it.file + it.rank * 9]
-            square.enterableProperty.value = true
-        }
-
-        movable = possibleDestination
         selected = place
-        updateView()
+        boardView.clearEnterable()
+        boardView.showEnterable(boardModel.movements(place).toSet())
+
+        boardView.updateView(boardModel)
     }
 
-    private fun confirmPromote(): Boolean {
+    fun confirmPromote(): Boolean {
         val alert = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
             title = "確認"
         }
         val selected = alert.showAndWait().orElse(ButtonType.NO)
         return selected == ButtonType.YES
-    }
-
-    enum class Status {
-        IDLE,
-        SELECTED,
-        MOVED
-    }
-
-    private fun clearEnterable() {
-        boardView.forEach { it.enterableProperty.value = false }
-    }
-
-    operator fun get(place: Place): QuantumPiece? {
-        return boardModel.singleOrNull { it.place == place }
-    }
-
-    private fun toModel(): BoardModel {
-        return BoardModel(boardModel)
     }
 }

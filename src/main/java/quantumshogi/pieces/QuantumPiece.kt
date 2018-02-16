@@ -5,8 +5,8 @@ import quantumshogi.player.Player
 
 data class QuantumPiece(
         val player: Player,
-        var place: Place,
-        val possibles: MutableList<PieceType> = init(player).toMutableList()
+        val place: Place,
+        val possibles: List<PieceType> = init(player)
 ) {
     companion object {
         fun init(player: Player) = listOf(
