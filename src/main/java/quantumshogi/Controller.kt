@@ -1,9 +1,6 @@
 package quantumshogi
 
 import javafx.beans.binding.Bindings
-import javafx.beans.binding.BooleanBinding
-import javafx.collections.FXCollections
-import javafx.collections.ObservableList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
@@ -23,26 +20,21 @@ class Controller : Initializable {
     private lateinit var chessboardPane: GridPane
 
     override fun initialize(location: URL, resources: ResourceBundle?) {
-        (0..8).forEach { y ->
-            chessboardPane.columnConstraints[y].halignment = HPos.CENTER
-            (0..8).forEach { x ->
-                val place = Place(y, x)
-                val square = Chessboard[place]
+        (0..8).forEach { rank ->
+            chessboardPane.columnConstraints[rank].halignment = HPos.CENTER
+            (0..8).forEach { file ->
+                val place by lazy { Place(rank, file) }
+                val square by lazy { Chessboard.boardView[place] }
                 val stackPane = StackPane().apply {
-                    alignment = Pos.CENTER
-                    styleProperty().bind(Bindings.createStringBinding(Callable{
+                    styleProperty().bind(Bindings.createStringBinding(Callable {
                         if (square.enterableProperty.value) {
                             return@Callable "-fx-background-color:#ff0000a0"
                         }
                         ""
                     }, square.enterableProperty))
-                    setOnMouseClicked { Chessboard.moveToIfPossible(place) }
+                    setOnMouseClicked { if (!Chessboard.moveToIfPossible(place)) Chessboard.selectPiece(place) }
                     children.add(Rectangle(30.0, 40.0).apply {
                         stroke = Color.BLACK
-                        strokeWidth = 1.0
-                        setOnMouseClicked {
-                            Chessboard.selectPiece(place)
-                        }
                         visibleProperty().bind(square.hasPieceProperty)
                         disableProperty().bind(!square.hasPieceProperty)
                         fillProperty().bind(Bindings.createObjectBinding(Callable {
@@ -50,13 +42,12 @@ class Controller : Initializable {
                         }, square.pieceProperty))
                     })
                 }
-                chessboardPane.add(stackPane, x, y)
+                chessboardPane.add(stackPane, file, rank)
             }
         }
     }
 
     @FXML
     fun onReset() {
-
     }
 }
