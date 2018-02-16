@@ -9,7 +9,9 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import javafx.scene.text.Text
 import quantumshogi.chessboard.Chessboard
+import quantumshogi.pieces.PieceType
 import quantumshogi.place.Place
 import java.net.URL
 import java.util.*
@@ -34,6 +36,7 @@ class Controller : Initializable {
                         ""
                     }, square.enterableProperty))
                     setOnMouseClicked { Chessboard.moveToIfPossible(place) }
+
                     children.add(Rectangle(30.0, 40.0).apply {
                         stroke = Color.BLACK
                         strokeWidth = 1.0
@@ -46,6 +49,16 @@ class Controller : Initializable {
                             Color.valueOf(square.piece?.player?.color ?: "#ffffff")
                         }, square.pieceProperty))
                     })
+
+                    PieceType.values().forEach {
+                        val text = Text(it.toString()).apply {
+                            fill = Color.SKYBLUE
+                            visibleProperty().bind(Bindings.createBooleanBinding(Callable {
+                                square.piece?.possibles?.contains(it) ?: false
+                            }, square.pieceProperty))
+                        }
+                        children.add(text)
+                    }
                 }
                 chessboardPane.add(stackPane, x, y)
             }
