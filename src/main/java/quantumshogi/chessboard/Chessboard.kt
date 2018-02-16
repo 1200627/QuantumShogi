@@ -1,8 +1,11 @@
 package quantumshogi.chessboard
 
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import quantumshogi.hand.HumanPlayer
+import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 import quantumshogi.player.Player
 
@@ -15,6 +18,9 @@ object Chessboard {
     }
 
     private var selected: Place? = null
+
+    val player1Capture: ObservableList<QuantumPiece> = FXCollections.observableArrayList()
+    val player2Capture: ObservableList<QuantumPiece> = FXCollections.observableArrayList()
 
     fun moveToIfPossible(to: Place): Boolean {
         if (selected == null) {
@@ -31,6 +37,7 @@ object Chessboard {
         selected = null
         boardView.clearEnterable()
         boardView.updateView(boardModel)
+        boardModel.players.forEach { it.updateView() }
 
         return true
     }
