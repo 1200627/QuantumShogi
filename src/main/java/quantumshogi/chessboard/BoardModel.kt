@@ -1,5 +1,6 @@
 package quantumshogi.chessboard
 
+import quantumshogi.hand.HumanPlayer
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 import quantumshogi.player.Player
@@ -10,7 +11,8 @@ data class BoardModel(
                 setOf(Place(1, 1), Place(1, 7)).map { QuantumPiece(Player.BLACK, it) }.toSet() +
                 setOf(6, 8).flatMap { rank -> (0..8).map { file -> QuantumPiece(Player.WHITE, Place(rank, file)) } }.toSet() +
                 setOf(Place(7, 1), Place(7, 7)).map { QuantumPiece(Player.WHITE, it) }.toSet(),
-        val playing: Player = Player.BLACK) {
+        val playing: Player = Player.BLACK,
+        val players: Set<HumanPlayer>) {
 
     operator fun get(place: Place) = pieces.singleOrNull { it.place == place }
 
@@ -46,15 +48,26 @@ data class BoardModel(
                 if (Chessboard.confirmPromote()) {
                     val newList = filtered.filter { it.canPromote }.map { it.promoted!! }.toList()
                     val toPiece = fromPiece.copy(place = to, possibles = newList.toMutableList())
-                    val toExistPiece = this[to] ?: return BoardModel(pieces - fromPiece + toPiece, playing.nextPlayer)
-                    return BoardModel(pieces - fromPiece - toExistPiece + toPiece, playing.nextPlayer)
+                    val toExistPiece = this[to]
+                            ?: return copy(pieces = pieces - fromPiece + toPiece, playing = playing.nextPlayer)
+
+                    val nextSet = setOf(
+                            players.single { it.turn == playing } + toExistPiece,
+                            players.single { it.turn != playing })
+                    return copy(pieces = pieces - fromPiece - toExistPiece + toPiece, playing = playing.nextPlayer, players = nextSet)
                 }
             }
         }
 
         val toPiece = fromPiece.copy(place = to, possibles = filtered.toMutableList())
-        val toExistPiece = this[to] ?: return BoardModel(pieces - fromPiece + toPiece, playing.nextPlayer)
-        return BoardModel(pieces - fromPiece - toExistPiece + toPiece, playing.nextPlayer)
+        val toExistPiece = this[to]
+                ?: return copy(pieces = pieces - fromPiece + toPiece, playing = playing.nextPlayer)
+
+        val nextSet = setOf(
+                players.single { it.turn == playing } + toExistPiece,
+                players.single { it.turn != playing })
+
+        return copy(pieces = pieces - fromPiece - toExistPiece + toPiece, playing = playing.nextPlayer, players = nextSet)
     }
 
 
