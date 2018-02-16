@@ -9,5 +9,5 @@ interface Piece {
     var place: Place
     val player: Player
     val playerProperty: SimpleObjectProperty<Player>
-    val possibles: ObservableList<PieceType>
+    val possibles: MutableList<PieceType>
 }
