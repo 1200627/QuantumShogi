@@ -1,7 +1,7 @@
 package quantumshogi.player
 
-enum class Player(val direction: Int, val color: String, val char: String) {
-    BLACK(1, "#000000", "☗") {
+enum class Turn(val color: String, val char: String) {
+    BLACK("#000000", "☗") {
         override val promotableRank = 6..8
 
         override val forward by lazy { Movement(1, 0) }
@@ -16,7 +16,7 @@ enum class Player(val direction: Int, val color: String, val char: String) {
         override val nextPlayer by lazy { WHITE }
     },
 
-    WHITE(-1, "#FFFFFF", "☖") {
+    WHITE("#FFFFFF", "☖") {
         override val promotableRank = 0..2
 
         override val forward by lazy { Movement(-1, 0) }
@@ -41,5 +41,5 @@ enum class Player(val direction: Int, val color: String, val char: String) {
     abstract val leftBackward: Movement
     abstract val rightBackward: Movement
 
-    abstract val nextPlayer: Player
+    abstract val nextPlayer: Turn
 }

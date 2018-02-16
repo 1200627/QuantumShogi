@@ -3,7 +3,7 @@ package quantumshogi.pieces
 import quantumshogi.chessboard.BoardModel
 import quantumshogi.place.Place
 import quantumshogi.player.Movement
-import quantumshogi.player.Player
+import quantumshogi.player.Turn
 
 enum class PieceType(private val string: String) {
     KING_HIGHER_RANKED_PLAYER("王将") {
@@ -11,16 +11,16 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return setOf(
-                    Place(place.rank + 1 * player.direction, place.file),
-                    Place(place.rank + 1 * player.direction, place.file - 1),
-                    Place(place.rank + 1 * player.direction, place.file + 1),
-                    Place(place.rank, place.file + 1),
-                    Place(place.rank, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file),
-                    Place(place.rank - 1 * player.direction, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file + 1)
+                    place + player.leftForward,
+                    place + player.forward,
+                    place + player.rightForward,
+                    place + player.right,
+                    place + player.left,
+                    place + player.leftBackward,
+                    place + player.backward,
+                    place + player.rightBackward
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
@@ -29,7 +29,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
     },
     ROOK("飛車") {
@@ -37,7 +37,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_ROOK }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return listOf(player.forward, player.left, player.backward, player.right).flatMap {
                 anyNumberOfSquares(place, player, board, it)
             }.toSet()
@@ -48,7 +48,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 ROOK.movements(place, player, board) + KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
 
     },
@@ -57,7 +57,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_BISHOP }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return listOf(player.leftForward, player.leftBackward, player.rightForward, player.rightBackward).flatMap {
                 anyNumberOfSquares(place, player, board, it)
             }.toSet()
@@ -68,7 +68,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 BISHOP.movements(place, player, board) + KING_HIGHER_RANKED_PLAYER.movements(place, player, board)
     },
     GOLD("金将") {
@@ -76,14 +76,14 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return setOf(
-                    Place(place.rank + 1 * player.direction, place.file),
-                    Place(place.rank + 1 * player.direction, place.file - 1),
-                    Place(place.rank + 1 * player.direction, place.file + 1),
-                    Place(place.rank, place.file + 1),
-                    Place(place.rank, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file)
+                    place + player.leftForward,
+                    place + player.forward,
+                    place + player.rightForward,
+                    place + player.right,
+                    place + player.left,
+                    place + player.backward
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
@@ -92,13 +92,13 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_SILVER }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return setOf(
-                    Place(place.rank + 1 * player.direction, place.file),
-                    Place(place.rank + 1 * player.direction, place.file - 1),
-                    Place(place.rank + 1 * player.direction, place.file + 1),
-                    Place(place.rank - 1 * player.direction, place.file - 1),
-                    Place(place.rank - 1 * player.direction, place.file + 1)
+                    place + player.leftForward,
+                    place + player.forward,
+                    place + player.rightForward,
+                    place + player.leftBackward,
+                    place + player.rightBackward
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
@@ -107,7 +107,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 GOLD.movements(place, player, board)
     },
     KNIGHT("桂馬") {
@@ -115,10 +115,10 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_KNIGHT }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return setOf(
-                    Place(place.rank + 2 * player.direction, place.file + 1),
-                    Place(place.rank + 2 * player.direction, place.file - 1)
+                    place + player.forward + player.rightForward,
+                    place + player.forward + player.leftForward
             ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
@@ -127,7 +127,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 GOLD.movements(place, player, board)
     },
     LANCE("香車") {
@@ -135,7 +135,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_LANCE }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
             return anyNumberOfSquares(place, player, board, player.forward)
         }
     },
@@ -144,7 +144,7 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 GOLD.movements(place, player, board)
     },
     PAWN("歩兵") {
@@ -152,10 +152,8 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { true }
         override val promoted by lazy { PROMOTED_PAWN }
 
-        override fun movements(place: Place, player: Player, board: BoardModel): Set<Place> {
-            return setOf(
-                    Place(place.rank + 1 * player.direction, place.file)
-            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+        override fun movements(place: Place, player: Turn, board: BoardModel): Set<Place> {
+            return setOf(place + player.forward).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     PROMOTED_PAWN("と金") {
@@ -163,12 +161,12 @@ enum class PieceType(private val string: String) {
         override val canPromote by lazy { false }
         override val promoted by lazy { null }
 
-        override fun movements(place: Place, player: Player, board: BoardModel) =
+        override fun movements(place: Place, player: Turn, board: BoardModel) =
                 GOLD.movements(place, player, board)
     };
 
     companion object {
-        fun anyNumberOfSquares(place: Place, player: Player, board: BoardModel, direction: Movement): Set<Place> {
+        fun anyNumberOfSquares(place: Place, player: Turn, board: BoardModel, direction: Movement): Set<Place> {
             val set = mutableSetOf<Place>()
 
             var now = place
@@ -192,13 +190,13 @@ enum class PieceType(private val string: String) {
             return set
         }
 
-        fun isMine(place: Place, player: Player, board: BoardModel): Boolean {
+        fun isMine(place: Place, player: Turn, board: BoardModel): Boolean {
             val piece = board[place]
             return piece != null && piece.player == player
         }
     }
 
-    abstract fun movements(place: Place, player: Player, board: BoardModel): Set<Place>
+    abstract fun movements(place: Place, player: Turn, board: BoardModel): Set<Place>
 
     abstract val isPromoted: Boolean
     abstract val canPromote: Boolean

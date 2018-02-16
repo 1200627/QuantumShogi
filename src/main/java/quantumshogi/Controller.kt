@@ -1,8 +1,6 @@
 package quantumshogi
 
 import javafx.beans.binding.Bindings
-import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
@@ -16,11 +14,9 @@ import javafx.scene.text.Text
 import javafx.util.Callback
 import quantumshogi.chessboard.Chessboard
 import quantumshogi.components.PieceCell
-import quantumshogi.pieces.Piece
 import quantumshogi.pieces.PieceType
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
-import quantumshogi.player.Player
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Callable
@@ -29,8 +25,10 @@ class Controller : Initializable {
     @FXML
     private lateinit var chessboardPane: GridPane
 
-    @FXML private lateinit var player1CaptureView: ListView<QuantumPiece>
-    @FXML private lateinit var player2CaptureView: ListView<QuantumPiece>
+    @FXML
+    private lateinit var player1CaptureView: ListView<QuantumPiece>
+    @FXML
+    private lateinit var player2CaptureView: ListView<QuantumPiece>
 
     override fun initialize(location: URL, resources: ResourceBundle?) {
         // Initialization of ListView

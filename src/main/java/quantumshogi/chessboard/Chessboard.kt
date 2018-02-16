@@ -7,15 +7,20 @@ import javafx.scene.control.ButtonType
 import quantumshogi.hand.HumanPlayer
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
-import quantumshogi.player.Player
+import quantumshogi.player.Turn
 
 object Chessboard {
     val boardView = BoardViewModel()
-    private var boardModel = BoardModel(players = setOf(HumanPlayer(turn = Player.BLACK), HumanPlayer(turn = Player.WHITE)))
+    private var boardModel = BoardModel(players = setOf(HumanPlayer(turn = Turn.BLACK), HumanPlayer(turn = Turn.WHITE)))
 
     init {
         boardView.updateView(boardModel)
     }
+
+    // 今どっち側の駒か実装
+    // 持ち駒から打つことの実装
+    // 他の駒を考慮した条件削減
+    // Optional : Log / 手戻り
 
     private var selected: Place? = null
 
