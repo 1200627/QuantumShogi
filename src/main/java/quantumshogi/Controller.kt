@@ -29,7 +29,7 @@ class Controller : Initializable {
             chessboardPane.columnConstraints[y].halignment = HPos.CENTER
             (0..8).forEach { x ->
                 val place = Place(y, x)
-                val square = Chessboard[place]
+                val square by lazy { Chessboard.boardView[place] }
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
                     styleProperty().bind(Bindings.createStringBinding(Callable{
