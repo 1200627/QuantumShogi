@@ -1,6 +1,7 @@
 package quantumshogi
 
 import javafx.beans.binding.Bindings
+import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
@@ -32,8 +33,8 @@ class Controller : Initializable {
 
     override fun initialize(location: URL, resources: ResourceBundle?) {
         // Initialization of ListView
-        player1CaptureView.items = FXCollections.observableArrayList((0 .. 10).map {QuantumPiece(Player.BLACK, Place(1, 1))})   // TODO: Merge
-        player2CaptureView.items = FXCollections.emptyObservableList()  // TODO: Merge
+        player1CaptureView.items = Chessboard.player1Capture
+        player2CaptureView.items = Chessboard.player2Capture
         player1CaptureView.cellFactory = Callback { _ -> PieceCell() }
         player2CaptureView.cellFactory = Callback { _ -> PieceCell() }
 
