@@ -1,5 +1,6 @@
 package quantumshogi.pieces
 
+import javafx.beans.property.SimpleObjectProperty
 import quantumshogi.place.Place
 import quantumshogi.player.Player
 
@@ -20,4 +21,6 @@ data class QuantumPiece(
                 PieceType.PAWN
         )
     }
+    val playerProperty = SimpleObjectProperty(player)
+
 }
