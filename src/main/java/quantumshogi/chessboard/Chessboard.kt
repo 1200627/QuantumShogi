@@ -2,14 +2,13 @@ package quantumshogi.chessboard
 
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import quantumshogi.pieces.PieceType
-import quantumshogi.pieces.QuantumPiece
+import quantumshogi.hand.HumanPlayer
 import quantumshogi.place.Place
 import quantumshogi.player.Player
 
 object Chessboard {
     val boardView = BoardViewModel()
-    private var boardModel = BoardModel()
+    private var boardModel = BoardModel(players = setOf(HumanPlayer(turn = Player.BLACK), HumanPlayer(turn = Player.WHITE)))
 
     init {
         boardView.updateView(boardModel)
@@ -27,6 +26,7 @@ object Chessboard {
             return false
         }
         println(boardModel)
+        println(boardModel.players)
 
         selected = null
         boardView.clearEnterable()
