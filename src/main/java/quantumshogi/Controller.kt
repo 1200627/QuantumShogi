@@ -4,6 +4,7 @@ import javafx.beans.binding.Bindings
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
+import javafx.geometry.Pos
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
