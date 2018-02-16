@@ -2,6 +2,7 @@ package quantumshogi.chessboard
 
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
+import quantumshogi.pieces.PieceType
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 import quantumshogi.player.Player
@@ -20,17 +21,24 @@ object Chessboard {
             return false
         }
 
+        val before = toModel()
+
         val (y, x) = Chessboard.selected
         val selectedSquare = Chessboard.get(x, y)
         Chessboard.get(to.file, to.rank).piece = selectedSquare.piece
         selectedSquare.piece = null
 
         Chessboard.clearEnterable()
-        playing = playing.nextPlayer
-        status = Status.IDLE
 
         rows.filter { it.piece != null }.forEach { it.piece!!.place = it.place }
 
+        val cloned = Chessboard.get(to.file, to.rank).piece!!.possibles.toList()
+        val filtered = cloned.filter { it.movements(selected, playing, before).contains(to) }
+        println(PieceType.GOLD.movements(selected, playing, before))
+        println("$cloned -> $filtered")
+
+        Chessboard.get(to.file, to.rank).piece!!.possibles.clear()
+        Chessboard.get(to.file, to.rank).piece!!.possibles.addAll(filtered)
 
         if (Chessboard.get(to.file, to.rank).piece!!.possibles.any { it.canPromote }) {
             if (to.rank in playing.promotableRank) {
@@ -43,6 +51,8 @@ object Chessboard {
             }
         }
 
+        playing = playing.nextPlayer
+        status = Status.IDLE
         println(Chessboard.toModel())
         return true
     }

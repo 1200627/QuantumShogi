@@ -11,7 +11,7 @@ class QuantumPiece(
         override var place: Place
 ) : Piece {
     override val possibles: MutableList<PieceType> = mutableListOf(
-            if (player == Player.BLACK) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
+            if (player == Player.WHITE) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
             PieceType.ROOK,
             PieceType.BISHOP,
             PieceType.GOLD,
