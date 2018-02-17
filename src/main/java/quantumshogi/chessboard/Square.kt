@@ -3,10 +3,10 @@ package quantumshogi.chessboard
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-import quantumshogi.pieces.QuantumPiece
+import quantumshogi.pieces.Piece
 
 class Square {
-    var piece: QuantumPiece? = null
+    var piece: Piece? = null
         set(value) {
             field = value
             Platform.runLater {

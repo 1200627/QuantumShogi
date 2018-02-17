@@ -8,7 +8,7 @@ import javafx.stage.Stage
 
 class Main : Application() {
     override fun start(primaryStage: Stage) = primaryStage.apply {
-        title = "量子将棋α"
+        title = "量子将棋β"
         scene = Scene(FXMLLoader.load<Parent>(this@Main.javaClass.getResource("/main.fxml")))
     }.show()
 }
