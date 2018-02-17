@@ -1,12 +1,30 @@
 package quantumshogi.place
 
 import quantumshogi.player.Movement
+import quantumshogi.player.Turn
 
-data class Place(val rank: Int, val file: Int) {
-    operator fun plus(other: Movement): Place {
-        return Place(rank + other.forward, file + other.left)
+interface Place2 {
+
+    val isOnBoard: Boolean
+
+    data class OnBoard(val rank: Int, val file: Int) : Place2 {
+        operator fun plus(other: Movement): OnBoard {
+            return OnBoard(rank + other.forward, file + other.left)
+        }
+
+        override val isOnBoard by lazy { rank in 0..8 && file in 0..8 }
     }
 
+    enum class InHand : Place2 {
+        BLACK, WHITE;
 
-    val isOnBoard by lazy { rank in 0..8 && file in 0..8 }
+        companion object {
+            fun of(turn: Turn): InHand = when (turn) {
+                Turn.BLACK -> BLACK
+                Turn.WHITE -> WHITE
+            }
+        }
+
+        override val isOnBoard by lazy { false }
+    }
 }

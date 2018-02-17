@@ -1,6 +1,7 @@
 package quantumshogi
 
 import javafx.beans.binding.Bindings
+import javafx.beans.value.ChangeListener
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
@@ -12,37 +13,50 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.util.Callback
+import quantumshogi.chessboard.BoardViewModel
 import quantumshogi.chessboard.Chessboard
 import quantumshogi.components.PieceCell
+import quantumshogi.pieces.Piece
 import quantumshogi.pieces.PieceType
-import quantumshogi.pieces.QuantumPiece
-import quantumshogi.place.Place
+import quantumshogi.place.Place2
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Callable
+import javafx.beans.value.ObservableValue
+
 
 class Controller : Initializable {
     @FXML
     private lateinit var chessboardPane: GridPane
 
     @FXML
-    private lateinit var player1CaptureView: ListView<QuantumPiece>
+    private lateinit var player1CaptureView: ListView<Piece>
     @FXML
-    private lateinit var player2CaptureView: ListView<QuantumPiece>
+    private lateinit var player2CaptureView: ListView<Piece>
 
     override fun initialize(location: URL, resources: ResourceBundle?) {
-        // Initialization of ListView
-        player1CaptureView.items = Chessboard.player1Capture
-        player2CaptureView.items = Chessboard.player2Capture
+        BoardViewModel.bindBlackHand(player1CaptureView::setItems)
+        BoardViewModel.bindWhiteHand(player2CaptureView::setItems)
         player1CaptureView.cellFactory = Callback { _ -> PieceCell() }
         player2CaptureView.cellFactory = Callback { _ -> PieceCell() }
+
+        player1CaptureView.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
+            if (newValue != null) {
+                Chessboard.selectPiece(newValue)
+            }
+        }
+        player2CaptureView.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
+            if (newValue != null) {
+                Chessboard.selectPiece(newValue)
+            }
+        }
 
         // Initialization of GridPane
         (0..8).forEach { y ->
             chessboardPane.columnConstraints[y].halignment = HPos.CENTER
             (0..8).forEach { x ->
-                val place = Place(y, x)
-                val square by lazy { Chessboard.boardView[place] }
+                val place = Place2.OnBoard(y, x)
+                val square = Chessboard.boardView.get(place)
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
                     styleProperty().bind(Bindings.createStringBinding(Callable {
@@ -53,7 +67,7 @@ class Controller : Initializable {
                     }, square.enterableProperty))
                     setOnMouseClicked {
                         if (square.piece != null) {
-                            Chessboard.selectPiece(place)
+                            Chessboard.selectPiece(square.piece!!)
                         }
                         Chessboard.moveToIfPossible(place)
                     }
@@ -64,7 +78,7 @@ class Controller : Initializable {
                         visibleProperty().bind(square.hasPieceProperty)
                         disableProperty().bind(!square.hasPieceProperty)
                         fillProperty().bind(Bindings.createObjectBinding(Callable {
-                            Color.valueOf(square.piece?.player?.color ?: "#ffffff")
+                            Color.valueOf(square.piece?.owner?.color ?: "#ffffff")
                         }, square.pieceProperty))
                     })
 

@@ -3,14 +3,14 @@ package quantumshogi.components
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
-import javafx.scene.layout.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
-import quantumshogi.Controller
-import quantumshogi.pieces.QuantumPiece
+import quantumshogi.pieces.Piece
 
-class PieceCell: ListCell<QuantumPiece>() {
+class PieceCell : ListCell<Piece>() {
     private val hBox = HBox().apply {
         alignment = Pos.CENTER
     }
@@ -31,7 +31,7 @@ class PieceCell: ListCell<QuantumPiece>() {
         hBox.children.add(label)
     }
 
-    override fun updateItem(item: QuantumPiece?, empty: Boolean) {
+    override fun updateItem(item: Piece?, empty: Boolean) {
         super.updateItem(item, empty)
         if (item == null || empty) {
             graphic = null
@@ -41,7 +41,7 @@ class PieceCell: ListCell<QuantumPiece>() {
         stackPane.children.add(Rectangle(30.0, 40.0).apply {
             stroke = Color.BLACK
             strokeWidth = 1.0
-            fill = Color.valueOf(item.player.color)
+            fill = Color.valueOf(item.owner.color)
         })
         item.possibles.forEach {
             val text = Text(it.toString()).apply {

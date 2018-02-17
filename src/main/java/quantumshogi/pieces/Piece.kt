@@ -1,14 +1,15 @@
 package quantumshogi.pieces
 
-import javafx.beans.property.SimpleObjectProperty
-import quantumshogi.place.Place
+import quantumshogi.place.Place2
 import quantumshogi.player.Turn
+import java.util.*
 
-data class QuantumPiece(
-        val player: Turn,
-        val place: Place,
-        val possibles: List<PieceType> = init(player)
-) {
+data class Piece(
+        val initialOwner: Turn,
+        val owner: Turn = initialOwner,
+        val place: Place2,
+        val possibles: List<PieceType> = init(initialOwner),
+        val id: UUID = UUID.randomUUID()) {
     companion object {
         fun init(player: Turn) = listOf(
                 if (player == Turn.WHITE) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
@@ -21,7 +22,4 @@ data class QuantumPiece(
                 PieceType.PAWN
         )
     }
-
-    val playerProperty = SimpleObjectProperty(player)
-
 }

@@ -13,7 +13,7 @@ enum class Turn(val color: String, val char: String) {
         override val leftBackward by lazy { Movement(-1, 1) }
         override val rightBackward by lazy { Movement(-1, -1) }
 
-        override val nextPlayer by lazy { WHITE }
+        override val next by lazy { WHITE }
     },
 
     WHITE("#FFFFFF", "☖") {
@@ -28,7 +28,7 @@ enum class Turn(val color: String, val char: String) {
         override val leftBackward by lazy { Movement(1, 1) }
         override val rightBackward by lazy { Movement(1, -1) }
 
-        override val nextPlayer by lazy { BLACK }
+        override val next by lazy { BLACK }
     };
 
     abstract val promotableRank: IntRange
@@ -41,5 +41,5 @@ enum class Turn(val color: String, val char: String) {
     abstract val leftBackward: Movement
     abstract val rightBackward: Movement
 
-    abstract val nextPlayer: Turn
+    abstract val next: Turn
 }
