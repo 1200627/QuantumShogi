@@ -1,21 +1,31 @@
 package quantumshogi.chessboard
 
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
-import quantumshogi.pieces.PieceType
+import quantumshogi.hand.HumanPlayer
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
-import quantumshogi.player.Player
+import quantumshogi.player.Turn
 
 object Chessboard {
     val boardView = BoardViewModel()
-    private var boardModel = BoardModel()
+    private var boardModel = BoardModel(players = setOf(HumanPlayer(turn = Turn.BLACK), HumanPlayer(turn = Turn.WHITE)))
 
     init {
         boardView.updateView(boardModel)
     }
 
+    // 今どっち側の駒か実装
+    // 持ち駒から打つことの実装
+    // 他の駒を考慮した条件削減
+    // Optional : Log / 手戻り
+
     private var selected: Place? = null
+
+    val player1Capture: ObservableList<QuantumPiece> = FXCollections.observableArrayList()
+    val player2Capture: ObservableList<QuantumPiece> = FXCollections.observableArrayList()
 
     fun moveToIfPossible(to: Place): Boolean {
         if (selected == null) {
@@ -27,10 +37,12 @@ object Chessboard {
             return false
         }
         println(boardModel)
+        println(boardModel.players)
 
         selected = null
         boardView.clearEnterable()
         boardView.updateView(boardModel)
+        boardModel.players.forEach { it.updateView() }
 
         return true
     }

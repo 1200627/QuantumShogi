@@ -1,16 +1,14 @@
 package quantumshogi.chessboard
 
+import quantumshogi.hand.HumanPlayer
 import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
-import quantumshogi.player.Player
+import quantumshogi.player.Turn
 
 data class BoardModel(
-        private val pieces: Set<QuantumPiece> =
-        setOf(0, 2).flatMap { rank -> (0..8).map { file -> QuantumPiece(Player.BLACK, Place(rank, file)) } }.toSet() +
-                setOf(Place(1, 1), Place(1, 7)).map { QuantumPiece(Player.BLACK, it) }.toSet() +
-                setOf(6, 8).flatMap { rank -> (0..8).map { file -> QuantumPiece(Player.WHITE, Place(rank, file)) } }.toSet() +
-                setOf(Place(7, 1), Place(1, 7)).map { QuantumPiece(Player.WHITE, it) }.toSet(),
-        val playing: Player = Player.BLACK) {
+        private val pieces: Set<QuantumPiece> = INITIAL_PIECES,
+        val playing: Turn = Turn.BLACK,
+        val players: Set<HumanPlayer>) {
 
     operator fun get(place: Place) = pieces.singleOrNull { it.place == place }
 
@@ -39,7 +37,6 @@ data class BoardModel(
             return this
         }
 
-
         val filtered = fromPiece.possibles.filter { it.movements(from, playing, this).contains(to) }
 
         if (filtered.any { it.canPromote }) {
@@ -47,17 +44,36 @@ data class BoardModel(
                 if (Chessboard.confirmPromote()) {
                     val newList = filtered.filter { it.canPromote }.map { it.promoted!! }.toList()
                     val toPiece = fromPiece.copy(place = to, possibles = newList.toMutableList())
-                    return BoardModel(pieces - fromPiece + toPiece, playing.nextPlayer)
+                    val toExistPiece = this[to]
+                            ?: return copy(pieces = pieces - fromPiece + toPiece, playing = playing.nextPlayer)
+
+                    val nextSet = setOf(
+                            players.single { it.turn == playing } + toExistPiece,
+                            players.single { it.turn != playing })
+                    return copy(pieces = pieces - fromPiece - toExistPiece + toPiece, playing = playing.nextPlayer, players = nextSet)
                 }
             }
         }
 
         val toPiece = fromPiece.copy(place = to, possibles = filtered.toMutableList())
-        return BoardModel(pieces - fromPiece + toPiece, playing.nextPlayer)
+        val toExistPiece = this[to]
+                ?: return copy(pieces = pieces - fromPiece + toPiece, playing = playing.nextPlayer)
+
+        val nextSet = setOf(
+                players.single { it.turn == playing } + toExistPiece,
+                players.single { it.turn != playing })
+
+        return copy(pieces = pieces - fromPiece - toExistPiece + toPiece, playing = playing.nextPlayer, players = nextSet)
     }
 
 
     companion object {
-        val LINE_SEPARATOR = System.getProperty("line.separator")!!
+        val LINE_SEPARATOR by lazy { System.getProperty("line.separator")!! }
+        val INITIAL_PIECES by lazy {
+            setOf(0, 2).flatMap { rank -> (0..8).map { file -> QuantumPiece(Turn.BLACK, Place(rank, file)) } }.toSet() +
+                    setOf(Place(1, 1), Place(1, 7)).map { QuantumPiece(Turn.BLACK, it) }.toSet() +
+                    setOf(6, 8).flatMap { rank -> (0..8).map { file -> QuantumPiece(Turn.WHITE, Place(rank, file)) } }.toSet() +
+                    setOf(Place(7, 1), Place(7, 7)).map { QuantumPiece(Turn.WHITE, it) }.toSet()
+        }
     }
 }

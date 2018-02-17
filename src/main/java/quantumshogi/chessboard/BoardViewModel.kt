@@ -1,6 +1,5 @@
 package quantumshogi.chessboard
 
-import quantumshogi.pieces.QuantumPiece
 import quantumshogi.place.Place
 
 class BoardViewModel {
