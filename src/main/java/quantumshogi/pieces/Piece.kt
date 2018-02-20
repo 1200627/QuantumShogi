@@ -12,7 +12,11 @@ data class Piece(
         val id: UUID = UUID.randomUUID()) {
     companion object {
         fun init(player: Turn) = listOf(
-                if (player == Turn.WHITE) PieceType.KING_HIGHER_RANKED_PLAYER else PieceType.KING_LOWER_RANKED_PLAYER,
+                if (player == Turn.WHITE) {
+                    PieceType.KING_HIGHER_RANKED_PLAYER
+                } else {
+                    PieceType.KING_LOWER_RANKED_PLAYER
+                },
                 PieceType.ROOK,
                 PieceType.BISHOP,
                 PieceType.GOLD,

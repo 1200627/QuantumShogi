@@ -6,15 +6,15 @@ import quantumshogi.pieces.Piece
 import quantumshogi.place.Place2
 
 object Chessboard {
-    val boardView = BoardViewModel
+    private val boardView = BoardViewModel
     private var boardModel = BoardModel()
 
     init {
         boardView.updateView(boardModel)
     }
 
-    // 今と最初の状態を見た目が変わるようにしたい
-    // 一度盤上の駒を選択すると持ち駒から打てなくなる bugfix
+    // 今と最初の状態を見た目が変わるようにする
+    // 最初の盤面が表示されるようにする
     // 他の駒を考慮した条件削減
     // Optional : Log / 手戻り / 反則 / 禁じ手 / チェックメイト
 
