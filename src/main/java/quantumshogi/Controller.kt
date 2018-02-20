@@ -56,7 +56,7 @@ class Controller : Initializable {
             chessboardPane.columnConstraints[y].halignment = HPos.CENTER
             (0..8).forEach { x ->
                 val place = Place2.OnBoard(y, x)
-                val square = Chessboard.boardView.get(place)
+                val square = BoardViewModel.get(place)
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
                     styleProperty().bind(Bindings.createStringBinding(Callable {
@@ -66,6 +66,8 @@ class Controller : Initializable {
                         ""
                     }, square.enterableProperty))
                     setOnMouseClicked {
+                        player1CaptureView.selectionModel.clearSelection()
+                        player2CaptureView.selectionModel.clearSelection()
                         if (square.piece != null) {
                             Chessboard.selectPiece(square.piece!!)
                         }

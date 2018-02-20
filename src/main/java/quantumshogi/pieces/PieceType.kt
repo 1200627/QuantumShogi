@@ -5,26 +5,20 @@ import quantumshogi.place.Place2
 import quantumshogi.player.Movement
 import quantumshogi.player.Turn
 
+private operator fun Place2.OnBoard.plus(movement: Set<Movement>) =
+        movement.map { this@plus + it }.toSet()
+
 enum class PieceType(private val string: String) {
     KING_HIGHER_RANKED_PLAYER("王将") {
         override val promoted by lazy { null }
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return setOf(
-                    piece.place + player.leftForward,
-                    piece.place + player.forward,
-                    piece.place + player.rightForward,
-                    piece.place + player.right,
-                    piece.place + player.left,
-                    piece.place + player.leftBackward,
-                    piece.place + player.backward,
-                    piece.place + player.rightBackward
-            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+            piece.place as? Place2.OnBoard ?: return board.emptiesOnBoard
+            return (piece.place + player.oneSquareInAnyDirection)
+                    .filter { it.isOnBoard }
+                    .filter { !isMine(it, player, board) }
+                    .toSet()
         }
     },
     KING_LOWER_RANKED_PLAYER("玉将") {
@@ -43,7 +37,7 @@ enum class PieceType(private val string: String) {
                 return board.emptiesOnBoard
             }
             piece.place as Place2.OnBoard
-            return listOf(player.forward, player.left, player.backward, player.right).flatMap {
+            return player.oneSquareOrthogonally.flatMap {
                 anyNumberOfSquares(piece.place, player, board, it)
             }.toSet()
         }
@@ -53,6 +47,7 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { ROOK }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
+            piece.place as? Place2.OnBoard ?: return board.emptiesOnBoard
             return ROOK.movements(piece, player, board) + KING_HIGHER_RANKED_PLAYER.movements(piece, player, board)
         }
     },
@@ -61,11 +56,8 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return listOf(player.leftForward, player.leftBackward, player.rightForward, player.rightBackward).flatMap {
+            piece.place as? Place2.OnBoard ?: return board.emptiesOnBoard
+            return player.oneSquareDiagonally.flatMap {
                 anyNumberOfSquares(piece.place, player, board, it)
             }.toSet()
         }
@@ -82,18 +74,11 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return setOf(
-                    piece.place + player.leftForward,
-                    piece.place + player.forward,
-                    piece.place + player.rightForward,
-                    piece.place + player.right,
-                    piece.place + player.left,
-                    piece.place + player.backward
-            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+            piece.place as? Place2.OnBoard ?: return board.emptiesOnBoard
+            piece.place + (player.oneSquareOrthogonally + player.oneSquareStraightForward)
+
+            return (piece.place + (player.oneSquareOrthogonally + player.oneSquareDiagonallyForward))
+                    .filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     SILVER("銀将") {
@@ -101,17 +86,10 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return setOf(
-                    piece.place + player.leftForward,
-                    piece.place + player.forward,
-                    piece.place + player.rightForward,
-                    piece.place + player.leftBackward,
-                    piece.place + player.rightBackward
-            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+            piece.place as? Place2.OnBoard ?: return board.emptiesOnBoard
+
+            return (piece.place + (player.oneSquareDiagonally + player.oneSquareStraightForward))
+                    .filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     PROMOTED_SILVER("成銀") {
@@ -126,14 +104,12 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return setOf(
-                    piece.place + player.forward + player.rightForward,
-                    piece.place + player.forward + player.leftForward
-            ).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+            piece.place as? Place2.OnBoard ?:
+                    return board.emptiesOnBoard
+                            .filter { (it + player.oneSquareStraightForward + player.oneSquareStraightForward).isOnBoard }.toSet()
+
+            return ((piece.place + player.oneSquareDiagonallyForward.map { it + player.oneSquareStraightForward }.toSet()))
+                    .filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     PROMOTED_KNIGHT("成桂") {
@@ -148,11 +124,10 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return anyNumberOfSquares(piece.place, player, board, player.forward)
+            piece.place as? Place2.OnBoard ?:
+                    return board.emptiesOnBoard
+                            .filter { (it + player.oneSquareStraightForward).isOnBoard }.toSet()
+            return anyNumberOfSquares(piece.place, player, board, player.oneSquareStraightForward)
         }
     },
     PROMOTED_LANCE("成香") {
@@ -167,11 +142,10 @@ enum class PieceType(private val string: String) {
         override val unpromoted by lazy { null }
 
         override fun movements(piece: Piece, player: Turn, board: BoardModel): Set<Place2.OnBoard> {
-            if (!piece.place.isOnBoard) {
-                return board.emptiesOnBoard
-            }
-            piece.place as Place2.OnBoard
-            return setOf(piece.place + player.forward).filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
+            piece.place as? Place2.OnBoard ?:
+                    return board.emptiesOnBoard.filter { (it + player.oneSquareStraightForward).isOnBoard }.toSet()
+            return setOf(piece.place + player.oneSquareStraightForward)
+                    .filter { it.isOnBoard }.filter { !isMine(it, player, board) }.toSet()
         }
     },
     PROMOTED_PAWN("と金") {

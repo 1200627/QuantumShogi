@@ -9,19 +9,16 @@ import quantumshogi.player.Turn
 object BoardViewModel {
     private val squares by lazy { (0..80).map { Square() } }
 
-    fun get(place: Place2.OnBoard): Square = squares[place.rank * 9 + place.file]
+    fun get(place: Place2.OnBoard): Square = squares[place.toInt]
 
     fun clearEnterable() = squares.forEach { it.enterableProperty.value = false }
 
-    fun showEnterable(places: Set<Place2.OnBoard>) = places.forEach { squares[it.rank * 9 + it.file].enterableProperty.value = true }
+    fun showEnterable(places: Set<Place2.OnBoard>) = places.forEach { squares[it.toInt].enterableProperty.value = true }
 
-    fun updateView(boardModel: BoardModel) {
-        (0..8).map { rank ->
-            (0..8).map { file ->
-                squares[rank * 9 + file].piece = boardModel[Place2.OnBoard(rank, file)]
-            }
-        }
+    fun updateView(boardModel: BoardModel) = Place2.OnBoard.values.forEach {
+        squares[it.toInt].piece = boardModel[it]
     }
+
 
     private val blackHand by lazy { FXCollections.observableArrayList<Piece>() }
     private val whiteHand by lazy { FXCollections.observableArrayList<Piece>() }
