@@ -20,6 +20,10 @@ object Chessboard {
 
     private var selected: Piece? = null
 
+    fun initialize() {
+        boardView.updateView(boardModel)
+    }
+
     fun moveToIfPossible(to: Place2.OnBoard): Boolean {
         if (selected == null) {
             return false
@@ -48,6 +52,12 @@ object Chessboard {
         boardView.clearEnterable()
         boardView.showEnterable(boardModel.movements(piece).toSet())
 
+        boardView.updateView(boardModel)
+    }
+
+    fun clearSelect() {
+        selected = null
+        boardView.clearEnterable()
         boardView.updateView(boardModel)
     }
 
