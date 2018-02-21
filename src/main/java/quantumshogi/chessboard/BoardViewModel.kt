@@ -1,5 +1,6 @@
 package quantumshogi.chessboard
 
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import quantumshogi.pieces.Piece
@@ -8,6 +9,12 @@ import quantumshogi.player.Turn
 
 object BoardViewModel {
     private val squares by lazy { (0..80).map { Square() } }
+
+    val scoreSheet = SimpleStringProperty()
+
+    fun updateScore(score: Score) {
+        scoreSheet.value = score.toString()
+    }
 
     fun get(place: Place2.OnBoard): Square = squares[place.toInt]
 

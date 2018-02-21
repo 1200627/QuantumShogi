@@ -18,10 +18,10 @@ object Chessboard {
     }
 
     fun takeBackMoveIfPossible() {
-
         score = score.takeBackMoveIfPossible
         boardView.updateView(score.board)
         boardView.updateHands(score.board)
+        boardView.updateScore(score)
     }
 
     fun moveToIfPossible(to: Place2.OnBoard): Boolean {
@@ -36,6 +36,7 @@ object Chessboard {
         boardView.clearEnterable()
         boardView.updateView(score.board)
         boardView.updateHands(score.board)
+        boardView.updateScore(score)
 
         return true
     }

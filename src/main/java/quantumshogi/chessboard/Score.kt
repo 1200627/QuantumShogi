@@ -12,7 +12,7 @@ data class Score(
     fun move(board: BoardModel, move: MoveOrDrop) = Score(score + BoardWithMove(move, board)).apply { println(BoardWithMove(move, board)) }
 
     override fun toString(): String {
-        return score.joinToString("\n") { it.board.toString() }
+        return score.joinToString("\n")
     }
 
     data class BoardWithMove(

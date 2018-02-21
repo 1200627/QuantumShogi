@@ -43,6 +43,7 @@ class Controller : Initializable {
         player1CaptureView.cellFactory = Callback { _ -> PieceCell() }
         player2CaptureView.cellFactory = Callback { _ -> PieceCell() }
         selectedPane.children.add(selectedBox)
+        logArea.textProperty().bind(BoardViewModel.scoreSheet)
 
         player1CaptureView.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
             if (newValue != null) {
