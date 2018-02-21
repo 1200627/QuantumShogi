@@ -6,6 +6,7 @@ import javafx.fxml.Initializable
 import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.scene.control.ListView
+import javafx.scene.control.TextArea
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.StackPane
 import javafx.util.Callback
@@ -33,6 +34,9 @@ class Controller : Initializable {
     private lateinit var selectedPane: StackPane
     private val selectedBox = PieceBox()
 
+    @FXML
+    private lateinit var logArea: TextArea
+
     override fun initialize(location: URL, resources: ResourceBundle?) {
         BoardViewModel.bindBlackHand(player1CaptureView::setItems)
         BoardViewModel.bindWhiteHand(player2CaptureView::setItems)
@@ -59,6 +63,8 @@ class Controller : Initializable {
                 val square = BoardViewModel.get(place)
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
+                    minWidth = 0.0
+                    minHeight = 0.0
                     styleProperty().bind(Bindings.createStringBinding(Callable {
                         if (square.enterableProperty.value) {
                             return@Callable "-fx-background-color:#ff0000a0"
@@ -79,12 +85,19 @@ class Controller : Initializable {
 
                     children.add(PiecePolygonPane().apply {
                         pieceProperty().bind(square.pieceProperty)
+                        scaleXProperty().bind(chessboardPane.widthProperty().divide(chessboardPane.prefWidthProperty()))
+                        scaleYProperty().bind(chessboardPane.heightProperty().divide(chessboardPane.prefHeightProperty()))
                     })
                 }
                 chessboardPane.add(stackPane, x, y)
             }
         }
         Chessboard.initialize()
+    }
+
+    @FXML
+    fun onConnect() {
+
     }
 
     @FXML

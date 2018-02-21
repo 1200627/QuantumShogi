@@ -2,6 +2,7 @@ package quantumshogi.components
 
 import javafx.beans.binding.Bindings
 import javafx.beans.property.Property
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -41,7 +42,6 @@ class PiecePolygonPane : StackPane() {
             })
         }
     }
-
     fun pieceProperty() = pieceProperty
 
     init {
