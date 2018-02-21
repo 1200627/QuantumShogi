@@ -4,7 +4,7 @@ import javafx.scene.control.ListCell
 import quantumshogi.pieces.Piece
 
 class PieceCell : ListCell<Piece>() {
-    private val pieceBox = PieceBox()
+    private val pieceBox by lazy { PieceBox() }
 
     init {
         text = null

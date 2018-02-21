@@ -1,7 +1,8 @@
 package quantumshogi.chessboard
 
-import quantumshogi.pieces.Piece
-import quantumshogi.place.Place2
+import quantumshogi.move.MoveOrDrop
+import quantumshogi.places.InHand
+import quantumshogi.places.OnBoard
 import quantumshogi.player.Turn
 
 data class Score(
@@ -21,7 +22,7 @@ data class Score(
 
         override fun toString() = move.pieceBeforeMove.owner.char + "" +
                 move.pieceBeforeMove.initialOwner.char +
-                "${9 - (move.pieceAfterMove.place as Place2.OnBoard).file}" +
+                "${9 - (move.pieceAfterMove.place as OnBoard).file}" +
                 when (move.pieceAfterMove.place.rank) {
                     0 -> "一"
                     1 -> "二"
@@ -35,12 +36,12 @@ data class Score(
                     else -> throw IllegalStateException()
                 } +
                 move.pieceAfterMove.possibles.joinToString("") { it.alternateForm } +
-                if (move.pieceBeforeMove.place is Place2.InHand) {
+                if (move.pieceBeforeMove.place is InHand) {
                     "打"
                 } else {
                     ""
                 } +
-                if (move.pieceBeforeMove.place is Place2.OnBoard) {
+                if (move.pieceBeforeMove.place is OnBoard) {
                     when (move.pieceBeforeMove.place.file - move.pieceAfterMove.place.file) {
                         0 -> ""
                         in 1..8 -> if (move.pieceBeforeMove.owner == Turn.BLACK) "右" else "左"
@@ -50,7 +51,7 @@ data class Score(
                 } else {
                     ""
                 } +
-                if (move.pieceBeforeMove.place is Place2.OnBoard) {
+                if (move.pieceBeforeMove.place is OnBoard) {
                     when (move.pieceBeforeMove.place.rank - move.pieceAfterMove.place.rank) {
                         0 -> "寄"
                         in 1..8 -> if (move.pieceBeforeMove.owner == Turn.BLACK) "引" else "上"
@@ -61,10 +62,5 @@ data class Score(
                     ""
                 }
     }
-
-    data class MoveOrDrop(
-            val pieceBeforeMove: Piece,
-            val pieceAfterMove: Piece)
-
 
 }

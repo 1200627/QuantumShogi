@@ -3,7 +3,7 @@ package quantumshogi.chessboard
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import quantumshogi.pieces.Piece
-import quantumshogi.place.Place2
+import quantumshogi.places.OnBoard
 
 object Chessboard {
     private val boardView = BoardViewModel
@@ -24,7 +24,7 @@ object Chessboard {
         boardView.updateScore(score)
     }
 
-    fun moveToIfPossible(to: Place2.OnBoard): Boolean {
+    fun moveToIfPossible(to: OnBoard): Boolean {
         if (selected == null) {
             return false
         }
@@ -42,21 +42,15 @@ object Chessboard {
     }
 
     fun selectPiece(piece: Piece) {
-        if (!score.board.turnIs(piece.owner)) {
-            return
-        }
 
         selected = piece
         boardView.clearEnterable()
         boardView.showEnterable(score.board.movements(piece).toSet())
-
-        boardView.updateView(score.board)
     }
 
     fun clearSelect() {
         selected = null
         boardView.clearEnterable()
-        boardView.updateView(score.board)
     }
 
     fun confirmPromote() = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {

@@ -16,7 +16,7 @@ import quantumshogi.components.PieceBox
 import quantumshogi.components.PieceCell
 import quantumshogi.components.PiecePolygonPane
 import quantumshogi.pieces.Piece
-import quantumshogi.place.Place2
+import quantumshogi.places.OnBoard
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Callable
@@ -46,21 +46,17 @@ class Controller : Initializable {
         logArea.textProperty().bind(BoardViewModel.scoreSheet)
 
         player1CaptureView.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
-            if (newValue != null) {
-                Chessboard.selectPiece(newValue)
-            }
+            newValue?.apply(Chessboard::selectPiece)
         }
         player2CaptureView.selectionModel.selectedItemProperty().addListener { _, _, newValue ->
-            if (newValue != null) {
-                Chessboard.selectPiece(newValue)
-            }
+            newValue?.apply(Chessboard::selectPiece)
         }
 
         // Initialization of GridPane
         (0..8).forEach { y ->
             chessboardPane.columnConstraints[y].halignment = HPos.CENTER
             (0..8).forEach { x ->
-                val place = Place2.OnBoard(y, x)
+                val place = OnBoard(y, x)
                 val square = BoardViewModel.get(place)
                 val stackPane = StackPane().apply {
                     alignment = Pos.CENTER
@@ -76,16 +72,19 @@ class Controller : Initializable {
                         player1CaptureView.selectionModel.clearSelection()
                         player2CaptureView.selectionModel.clearSelection()
                         selectedBox.updateItem(square.piece)
+                        if (Chessboard.moveToIfPossible(place)) {
+                            return@setOnMouseClicked
+                        }
                         if (square.piece != null) {
                             Chessboard.selectPiece(square.piece!!)
                         } else if (!square.enterableProperty.value) {
                             Chessboard.clearSelect()
                         }
-                        Chessboard.moveToIfPossible(place)
+
                     }
 
                     children.add(PiecePolygonPane().apply {
-                        pieceProperty().bind(square.pieceProperty)
+                        pieceProperty.bind(square.pieceProperty)
                         scaleXProperty().bind(chessboardPane.widthProperty().divide(chessboardPane.prefWidthProperty()))
                         scaleYProperty().bind(chessboardPane.heightProperty().divide(chessboardPane.prefHeightProperty()))
                     })
