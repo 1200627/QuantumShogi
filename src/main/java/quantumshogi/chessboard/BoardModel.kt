@@ -18,7 +18,7 @@ data class BoardModel(
     override fun toString() = getFromHand(place = Place2.InHand.of(Turn.BLACK)).toString() +
             (0..8).joinToString(separator = LINE_SEPARATOR, prefix = LINE_SEPARATOR, postfix = LINE_SEPARATOR) { rank ->
                 (0..8).joinToString(separator = "") { file ->
-                    this[Place2.OnBoard(rank, file)]?.owner?.char ?: "□"
+                    this[Place2.OnBoard(rank, file)]?.owner?.char?.toString() ?: "□"
                 }
             } + getFromHand(place = Place2.InHand.of(Turn.WHITE)).toString()
 
@@ -31,14 +31,14 @@ data class BoardModel(
         it.movements(piece, turn, this)
     }
 
-    fun moveToIfPossible(fromPiece: Piece, to: Place2.OnBoard): BoardModel {
+    fun moveToIfPossible(fromPiece: Piece, to: Place2.OnBoard): Pair<BoardModel, Score.MoveOrDrop>? {
         if (fromPiece.owner != turn) {
-            println("自分の駒じゃないよ")
-            return this
+            // println("自分の駒じゃないよ")
+            return null
         }
         if (!fromPiece.possibles.any { it.movements(fromPiece, turn, this).contains(to) }) {
-            println("そこには動かせないよ")
-            return this
+            // println("そこには動かせないよ")
+            return null
         }
 
         val filtered = fromPiece.possibles.filter { it.movements(fromPiece, turn, this).contains(to) }
@@ -51,7 +51,7 @@ data class BoardModel(
                         val newList = filtered.filter { it.promoted != null }.map { it.promoted!! }.toList()
                         val toPiece = fromPiece.copy(place = to, possibles = newList.toMutableList())
                         val toExistPiece = this[to]
-                                ?: return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece + toPiece).toSet(), turn = turn.next)
+                                ?: return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece + toPiece).toSet(), turn = turn.next) to Score.MoveOrDrop(fromPiece, toPiece)
 
                         val pieceAddedToHand = toExistPiece.copy(
                                 owner = turn,
@@ -66,7 +66,7 @@ data class BoardModel(
                                                 it.unpromoted!!
                                             }
                                         })
-                        return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece - toExistPiece + toPiece + pieceAddedToHand).toSet(), turn = turn.next)
+                        return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece - toExistPiece + toPiece + pieceAddedToHand).toSet(), turn = turn.next) to Score.MoveOrDrop(fromPiece, toPiece)
                     }
                 }
             }
@@ -74,7 +74,7 @@ data class BoardModel(
 
         val toPiece = fromPiece.copy(place = to, possibles = filtered.toMutableList())
         val toExistPiece = this[to]
-                ?: return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece + toPiece).toSet(), turn = turn.next)
+                ?: return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece + toPiece).toSet(), turn = turn.next) to Score.MoveOrDrop(fromPiece, toPiece)
 
 
         val pieceAddedToHand = toExistPiece.copy(
@@ -90,7 +90,7 @@ data class BoardModel(
                                 it.unpromoted!!
                             }
                         })
-        return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece - toExistPiece + toPiece + pieceAddedToHand).toSet(), turn = turn.next)
+        return copy(pieces = updateMovementUsingInteraction(pieces - fromPiece - toExistPiece + toPiece + pieceAddedToHand).toSet(), turn = turn.next) to Score.MoveOrDrop(fromPiece, toPiece)
     }
 
 

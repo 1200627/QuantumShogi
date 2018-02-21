@@ -7,68 +7,55 @@ import quantumshogi.place.Place2
 
 object Chessboard {
     private val boardView = BoardViewModel
-    private val history = mutableListOf(BoardModel())
+    private var score = Score()
 
-    init {
-        boardView.updateView(history.last())
-    }
-
-    // 今と最初の状態を見た目が変わるようにする
-    // 最初の盤面が表示されるようにする
-    // 他の駒を考慮した条件削減
-    // Optional : Log / 手戻り / 反則 / 禁じ手 / チェックメイト
+    // Optional : 反則 / 禁じ手 / チェックメイト
 
     private var selected: Piece? = null
 
     fun initialize() {
-        boardView.updateView(history.last())
+        boardView.updateView(score.board)
     }
 
     fun takeBackMoveIfPossible() {
-        if (history.size < 2) {
-            return
-        }
 
-        history.removeAt(history.lastIndex)
-        boardView.updateView(history.last())
-        boardView.updateHands(history.last())
+        score = score.takeBackMoveIfPossible
+        boardView.updateView(score.board)
+        boardView.updateHands(score.board)
     }
 
     fun moveToIfPossible(to: Place2.OnBoard): Boolean {
         if (selected == null) {
             return false
         }
-        val next = history.last().moveToIfPossible(selected!!, to)
-        if (history.last() == next) {
-            return false
-        }
-        history.add(next)
-        println(history.last())
+        val (board, move) = score.board.moveToIfPossible(selected!!, to) ?: return false
+
+        score = score.move(board, move)
 
         selected = null
         boardView.clearEnterable()
-        boardView.updateView(history.last())
-        boardView.updateHands(history.last())
+        boardView.updateView(score.board)
+        boardView.updateHands(score.board)
 
         return true
     }
 
     fun selectPiece(piece: Piece) {
-        if (!history.last().turnIs(piece.owner)) {
+        if (!score.board.turnIs(piece.owner)) {
             return
         }
 
         selected = piece
         boardView.clearEnterable()
-        boardView.showEnterable(history.last().movements(piece).toSet())
+        boardView.showEnterable(score.board.movements(piece).toSet())
 
-        boardView.updateView(history.last())
+        boardView.updateView(score.board)
     }
 
     fun clearSelect() {
         selected = null
         boardView.clearEnterable()
-        boardView.updateView(history.last())
+        boardView.updateView(score.board)
     }
 
     fun confirmPromote() = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {

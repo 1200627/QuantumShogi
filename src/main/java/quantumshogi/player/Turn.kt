@@ -1,7 +1,7 @@
 package quantumshogi.player
 
-enum class Turn(val color: String, val char: String) {
-    BLACK("#000000", "☗") {
+enum class Turn(val color: String, val char: Char) {
+    BLACK("#000000", '▲') {
         override val promotableRank = 6..8
 
         override val oneSquareStraightForward by lazy { Movement(1, 0) }
@@ -9,7 +9,7 @@ enum class Turn(val color: String, val char: String) {
         override val next by lazy { WHITE }
     },
 
-    WHITE("#FFFFFF", "☖") {
+    WHITE("#FFFFFF", '△') {
         override val promotableRank = 0..2
 
         override val oneSquareStraightForward by lazy { Movement(-1, 0) }
