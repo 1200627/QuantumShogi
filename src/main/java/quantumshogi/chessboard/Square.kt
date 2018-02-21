@@ -10,11 +10,9 @@ class Square {
         set(value) {
             field = value
             Platform.runLater {
-                hasPieceProperty.value = value != null
                 pieceProperty.value = value
             }
         }
-    val hasPieceProperty = SimpleBooleanProperty(false)
     val pieceProperty = SimpleObjectProperty(piece).apply { addListener { _, _, _ -> } }
     val enterableProperty = SimpleBooleanProperty(false)
 }

@@ -1,13 +1,13 @@
 package quantumshogi.pieces
 
-import quantumshogi.place.Place2
+import quantumshogi.places.Place
 import quantumshogi.player.Turn
 import java.util.*
 
 data class Piece(
         val initialOwner: Turn,
         val owner: Turn = initialOwner,
-        val place: Place2,
+        val place: Place,
         val possibles: List<PieceType> = init(initialOwner),
         val id: UUID = UUID.randomUUID()) {
     companion object {
