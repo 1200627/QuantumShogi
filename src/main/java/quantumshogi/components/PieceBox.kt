@@ -24,33 +24,16 @@ class PieceBox : HBox() {
         children.addAll(stackPane, label)
     }
 
-    fun updateItem(item: Piece) {
+    fun updateItem(item: Piece?) {
         stackPane.children.clear()
-        stackPane.children.add(Polygon(
-                0.0, 20.0,
-                15.0, 10.0,
-                15.0, -20.0,
-                -15.0, -20.0,
-                -15.0, 10.0,
-                0.0, 20.0
-        ).apply {
-            stroke = Color.BLACK
-            strokeWidth = 1.0
-            fill = Color.valueOf(item.initialOwner.color)
-            rotate = if (item.owner == Turn.BLACK) {
-                0.0
-            } else {
-                180.0
-            }
-            println(fill)
-            println(rotate)
-        })
-        item.possibles.forEach {
-            val text = Text(it.toString()).apply {
-                fill = Color.SKYBLUE
-            }
-            stackPane.children.add(text)
+        if (item == null) {
+            label.text = ""
+            return
         }
+
+        stackPane.children.add(PiecePolygonPane().apply {
+            pieceProperty().value = item
+        })
         label.text = item.possibles.joinToString(",") { it.toString() }
     }
 }

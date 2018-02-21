@@ -24,7 +24,11 @@ object Chessboard {
         boardView.updateView(history.last())
     }
 
-    fun takeBackMove() {
+    fun takeBackMoveIfPossible() {
+        if (history.size < 2) {
+            return
+        }
+
         history.removeAt(history.lastIndex)
         boardView.updateView(history.last())
         boardView.updateHands(history.last())
