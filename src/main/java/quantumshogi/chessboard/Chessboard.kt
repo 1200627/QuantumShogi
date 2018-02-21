@@ -26,6 +26,8 @@ object Chessboard {
 
     fun takeBackMove() {
         history.removeAt(history.lastIndex)
+        boardView.updateView(history.last())
+        boardView.updateHands(history.last())
     }
 
     fun moveToIfPossible(to: Place2.OnBoard): Boolean {

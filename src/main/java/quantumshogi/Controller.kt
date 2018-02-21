@@ -127,6 +127,6 @@ class Controller : Initializable {
 
     @FXML
     fun onRetract() {
-
+        Chessboard.takeBackMove()
     }
 }
