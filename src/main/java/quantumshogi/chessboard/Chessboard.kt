@@ -7,10 +7,10 @@ import quantumshogi.place.Place2
 
 object Chessboard {
     private val boardView = BoardViewModel
-    private var boardModel = BoardModel()
+    private val history = mutableListOf(BoardModel())
 
     init {
-        boardView.updateView(boardModel)
+        boardView.updateView(history.last())
     }
 
     // 今と最初の状態を見た目が変わるようにする
@@ -21,44 +21,48 @@ object Chessboard {
     private var selected: Piece? = null
 
     fun initialize() {
-        boardView.updateView(boardModel)
+        boardView.updateView(history.last())
+    }
+
+    fun takeBackMove() {
+        history.removeAt(history.lastIndex)
     }
 
     fun moveToIfPossible(to: Place2.OnBoard): Boolean {
         if (selected == null) {
             return false
         }
-        val old = boardModel
-        boardModel = boardModel.moveToIfPossible(selected!!, to)
-        if (old == boardModel) {
+        val next = history.last().moveToIfPossible(selected!!, to)
+        if (history.last() == next) {
             return false
         }
-        println(boardModel)
+        history.add(next)
+        println(history.last())
 
         selected = null
         boardView.clearEnterable()
-        boardView.updateView(boardModel)
-        boardView.updateHands(boardModel)
+        boardView.updateView(history.last())
+        boardView.updateHands(history.last())
 
         return true
     }
 
     fun selectPiece(piece: Piece) {
-        if (!boardModel.turnIs(piece.owner)) {
+        if (!history.last().turnIs(piece.owner)) {
             return
         }
 
         selected = piece
         boardView.clearEnterable()
-        boardView.showEnterable(boardModel.movements(piece).toSet())
+        boardView.showEnterable(history.last().movements(piece).toSet())
 
-        boardView.updateView(boardModel)
+        boardView.updateView(history.last())
     }
 
     fun clearSelect() {
         selected = null
         boardView.clearEnterable()
-        boardView.updateView(boardModel)
+        boardView.updateView(history.last())
     }
 
     fun confirmPromote() = Alert(Alert.AlertType.NONE, "成りますか？", ButtonType.YES, ButtonType.NO).apply {
