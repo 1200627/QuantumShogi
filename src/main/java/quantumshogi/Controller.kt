@@ -126,7 +126,7 @@ class Controller : Initializable {
     }
 
     @FXML
-    fun onReset() {
+    fun onRetract() {
 
     }
 }
