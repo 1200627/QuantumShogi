@@ -2,13 +2,17 @@ package quantumshogi
 
 import javafx.beans.binding.Bindings
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.geometry.HPos
 import javafx.geometry.Pos
+import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.scene.control.ListView
 import javafx.scene.control.TextArea
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.StackPane
+import javafx.stage.Stage
 import javafx.util.Callback
 import quantumshogi.chessboard.BoardViewModel
 import quantumshogi.chessboard.Chessboard
@@ -97,11 +101,27 @@ class Controller : Initializable {
 
     @FXML
     fun onConnect() {
-
+        val fxmlLoader = FXMLLoader(javaClass.getResource("/connect.fxml"))
+        val root = fxmlLoader.load<Parent>()
+        fxmlLoader.getController<ConnectController>().controller = this
+        val scene = Scene(root)
+        val stage = Stage().apply {
+            this.scene = scene
+            title = "接続"
+        }
+        stage.showAndWait()
     }
 
     @FXML
     fun onRetract() {
         Chessboard.takeBackMoveIfPossible()
+    }
+
+    fun print(x: Any) {
+        logArea.appendText(x.toString())
+    }
+
+    fun println(x: Any) {
+        print("$x\n")
     }
 }

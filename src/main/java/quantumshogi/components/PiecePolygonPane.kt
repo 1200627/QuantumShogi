@@ -1,6 +1,7 @@
 package quantumshogi.components
 
 import javafx.beans.binding.Bindings
+import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -39,11 +40,17 @@ class PiecePolygonPane : StackPane() {
                             Color.BLACK
                         }
                         font = Font.font("HGPGyoshotai", 24.0)
+                        rotate = if (newValue.owner == Turn.BLACK) {
+                            180.0
+                        } else {
+                            0.0
+                        }
                     }
                 })
             }
         }
     }
+    fun pieceProperty() = pieceProperty
 
     init {
         piecePolygon.run {
