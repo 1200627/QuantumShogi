@@ -30,7 +30,7 @@ data class BoardModel(
     }
 
     fun movements(piece: Piece) = piece.possibles.flatMap {
-        it.movements(piece, turn, this)
+        it.movements(piece, this)
     }
 
     fun moveToIfPossible(fromPiece: Piece, to: OnBoard): Pair<BoardModel, MoveOrDrop>? {
@@ -38,12 +38,12 @@ data class BoardModel(
             // println("自分の駒じゃないよ")
             return null
         }
-        if (!fromPiece.possibles.any { it.movements(fromPiece, turn, this).contains(to) }) {
+        if (!fromPiece.possibles.any { it.movements(fromPiece, this).contains(to) }) {
             // println("そこには動かせないよ")
             return null
         }
 
-        val filtered = fromPiece.possibles.filter { it.movements(fromPiece, turn, this).contains(to) }
+        val filtered = fromPiece.possibles.filter { it.movements(fromPiece, this).contains(to) }
 
         // 成れるとき
         if (fromPiece.place.isOnBoard) {

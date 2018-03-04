@@ -12,7 +12,7 @@ enum class PieceType(private val string: String, val alternateForm: String) {
 
         override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
-            return (piece.place + piece.owner.oneSquareInAnyDirection)
+            return (piece.place + Movement.ONE_SQUARE_IN_ANY_DIRECTION)
                     .filter { it.isOnBoard }
                     .filter { !isMine(it, piece.owner, board) }
                     .toSet()
@@ -34,7 +34,7 @@ enum class PieceType(private val string: String, val alternateForm: String) {
                 return board.emptiesOnBoard
             }
             piece.place as OnBoard
-            return piece.owner.oneSquareOrthogonally.flatMap {
+            return Movement.ONE_SQUARE_ORTHOGONALLY.flatMap {
                 anyNumberOfSquares(piece.place, piece.owner, board, it)
             }.toSet()
         }
@@ -45,7 +45,7 @@ enum class PieceType(private val string: String, val alternateForm: String) {
 
         override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
-            return ROOK.movements(piece,board) + KING_HIGHER_RANKED_PLAYER.movements(piece,  board)
+            return ROOK.movements(piece, board) + KING_HIGHER_RANKED_PLAYER.movements(piece, board)
         }
     },
     BISHOP("角行", "角") {
@@ -54,7 +54,7 @@ enum class PieceType(private val string: String, val alternateForm: String) {
 
         override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
-            return piece.owner.oneSquareDiagonally.flatMap {
+            return Movement.ONE_SQUARE_DIAGONALLY.flatMap {
                 anyNumberOfSquares(piece.place, piece.owner, board, it)
             }.toSet()
         }
@@ -72,9 +72,9 @@ enum class PieceType(private val string: String, val alternateForm: String) {
 
         override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
-            piece.place + (piece.owner.oneSquareOrthogonally + piece.owner.oneSquareStraightForward)
+            piece.place + (Movement.ONE_SQUARE_ORTHOGONALLY + piece.owner.oneSquareStraightForward)
 
-            return (piece.place + (piece.owner.oneSquareOrthogonally + piece.owner.oneSquareDiagonallyForward))
+            return (piece.place + (Movement.ONE_SQUARE_ORTHOGONALLY + piece.owner.oneSquareDiagonallyForward))
                     .filter { it.isOnBoard }.filter { !isMine(it, piece.owner, board) }.toSet()
         }
     },
@@ -85,7 +85,7 @@ enum class PieceType(private val string: String, val alternateForm: String) {
         override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
 
-            return (piece.place + (piece.owner.oneSquareDiagonally + piece.owner.oneSquareStraightForward))
+            return (piece.place + (Movement.ONE_SQUARE_DIAGONALLY + piece.owner.oneSquareStraightForward))
                     .filter { it.isOnBoard }.filter { !isMine(it, piece.owner, board) }.toSet()
         }
     },
@@ -93,14 +93,14 @@ enum class PieceType(private val string: String, val alternateForm: String) {
         override val promoted: Nothing? by lazy { null }
         override val unpromoted by lazy { SILVER }
 
-        override fun movements(piece: Piece,board: BoardModel) =
-                GOLD.movements(piece,board)
+        override fun movements(piece: Piece, board: BoardModel) =
+                GOLD.movements(piece, board)
     },
     KNIGHT("桂馬", "桂") {
         override val promoted by lazy { PROMOTED_KNIGHT }
         override val unpromoted: Nothing? by lazy { null }
 
-        override fun movements(piece: Piece,  board: BoardModel): Set<OnBoard> {
+        override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard ?: return board.emptiesOnBoard
                     .filter { (it + piece.owner.oneSquareStraightForward + piece.owner.oneSquareStraightForward).isOnBoard }.toSet()
 
@@ -130,13 +130,13 @@ enum class PieceType(private val string: String, val alternateForm: String) {
         override val unpromoted by lazy { LANCE }
 
         override fun movements(piece: Piece, board: BoardModel) =
-                GOLD.movements(piece,  board)
+                GOLD.movements(piece, board)
     },
     PAWN("歩兵", "歩") {
         override val promoted by lazy { PROMOTED_PAWN }
         override val unpromoted: Nothing? by lazy { null }
 
-        override fun movements(piece: Piece,  board: BoardModel): Set<OnBoard> {
+        override fun movements(piece: Piece, board: BoardModel): Set<OnBoard> {
             piece.place as? OnBoard
                     ?: return board.emptiesOnBoard.filter { (it + piece.owner.oneSquareStraightForward).isOnBoard }.toSet()
             return setOf(piece.place + piece.owner.oneSquareStraightForward)
