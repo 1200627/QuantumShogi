@@ -48,7 +48,7 @@ data class BoardModel(
         // 成れるとき
         if (fromPiece.place.isOnBoard) {
             if (filtered.any { it.promoted != null }) {
-                if (to.rank in turn.promotableRank) {
+                if (to.rank in turn.promotableRank || (fromPiece.place as OnBoard).rank in turn.promotableRank) {
                     if (Chessboard.confirmPromote()) {
                         val newList = filtered.filter { it.promoted != null }.map { it.promoted!! }.toList()
                         val toPiece = fromPiece.copy(place = to, possibles = newList.toMutableList())
